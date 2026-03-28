@@ -1,3 +1,6 @@
+import 'package:bathroom_vision/features/auth/presentation/user_profile_page.dart';
+import 'package:bathroom_vision/features/bathrooms/presentation/bathrooms_page.dart';
+import 'package:bathroom_vision/features/blocks/presentation/blocks_page.dart';
 import 'package:bathroom_vision/shared/widgets/custom_bottom_nav_bar.dart';
 import 'package:bathroom_vision/shared/widgets/menu_button.dart';
 import 'package:bathroom_vision/shared/widgets/menu_hamburguer.dart';
@@ -5,14 +8,14 @@ import 'package:bathroom_vision/shared/widgets/menu_title.dart';
 import 'package:bathroom_vision/shared/widgets/user_header.dart';
 import 'package:flutter/material.dart';
 
-class NavigacionPage extends StatefulWidget {
-  const NavigacionPage({super.key});
+class NavigationPage extends StatefulWidget {
+  const NavigationPage({super.key});
 
   @override
-  State<NavigacionPage> createState() => _NavigacionPageState();
+  State<NavigationPage> createState() => _NavigationPageState();
 }
 
-class _NavigacionPageState extends State<NavigacionPage> {
+class _NavigationPageState extends State<NavigationPage> {
   int _currentIndex = 0;
 
   @override
@@ -37,11 +40,11 @@ class _NavigacionPageState extends State<NavigacionPage> {
       case 0:
         return _buildMenuContent();
       case 1:
-        return _buildPlaceholder('BLOQUES');
+        return const BlocksPage();
       case 2:
-        return _buildPlaceholder('BAÑOS');
+        return const BathroomsPage();
       case 3:
-        return _buildPlaceholder('PERFIL');
+        return const UserProfilePage();
       default:
         return _buildMenuContent();
     }
@@ -54,14 +57,12 @@ class _NavigacionPageState extends State<NavigacionPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header con avatar y nombre de usuario
             const UserHeader(
               userName: 'Mateo López',
               role: 'Usuario',
               isOnline: true,
             ),
 
-            // Fila con menú hamburguesa y título
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Stack(
@@ -77,7 +78,6 @@ class _NavigacionPageState extends State<NavigacionPage> {
                     ),
                   ),
 
-                  // Título centrado REAL
                   MenuTitle(title: "BAÑOVISIÓN"),
                 ],
               ),
@@ -85,7 +85,6 @@ class _NavigacionPageState extends State<NavigacionPage> {
 
             const SizedBox(height: 8),
 
-            // Lista de opciones del menú
             Expanded(
               child: SingleChildScrollView(
                 child: Column(

@@ -2,7 +2,6 @@ import 'package:bathroom_vision/core/api/api_client.dart';
 import 'package:bathroom_vision/features/blocks/models/block_request.dart';
 import 'package:bathroom_vision/features/blocks/models/block_response.dart';
 
-
 class BlockApi {
 
   final ApiClient apiClient;
@@ -10,20 +9,20 @@ class BlockApi {
   BlockApi(this.apiClient);
 
   Future<List<BlockResponse>> getAllBlocks() async {
-    final response = await apiClient.dio.get("/blocks");
+    final response = await apiClient.dio.get("/api/blocks");
     final List data = response.data;
     return data.map((e) => BlockResponse.fromJson(e)).toList();
   }
 
   Future<BlockResponse> getBlockById(int id) async {
-    final response = await apiClient.dio.get("/blocks/$id");
+    final response = await apiClient.dio.get("/api/blocks/$id");
     return BlockResponse.fromJson(response.data);
   }
 
   Future<BlockResponse> createBlock(BlockRequest blockRequest) async {
 
     final response = await apiClient.dio.post(
-      "/blocks",
+      "/api/blocks",
       data: blockRequest.toJson()
     );
 
@@ -33,7 +32,7 @@ class BlockApi {
   Future<BlockResponse> updateBlock(int id, BlockRequest blockRequest) async {
 
     final response = await apiClient.dio.put(
-      "/blocks/$id",
+      "/api/blocks/$id",
       data:  blockRequest.toJson(),
     );
 
@@ -41,6 +40,6 @@ class BlockApi {
   }
 
   Future<void> deleteBlock(int id) async {
-    await apiClient.dio.delete("/blocks/$id");
+    await apiClient.dio.delete("/api/blocks/$id");
   }
 }

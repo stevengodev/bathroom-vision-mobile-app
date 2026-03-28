@@ -2,7 +2,6 @@ import 'package:bathroom_vision/features/auth/data/auth_repository.dart';
 import 'package:flutter/material.dart';
 
 class AuthProvider extends ChangeNotifier {
-
   final AuthRepository repository;
 
   AuthProvider(this.repository);
@@ -10,6 +9,24 @@ class AuthProvider extends ChangeNotifier {
   bool loading = false;
   String? error;
   bool isAuthenticated = false;
+
+  Future<void> register(String name, String email, String password) async {
+    loading = true;
+    notifyListeners();
+
+    try {
+      await repository.register(name, email, password);
+
+      isAuthenticated = true;
+      error = null;
+    } catch (e) {
+      error = e.toString();
+      rethrow;
+    } finally {
+      loading = false;
+      notifyListeners();
+    }
+  }
 
   // Login con email y contraseña
   Future<void> login(String email, String password) async {
@@ -19,9 +36,8 @@ class AuthProvider extends ChangeNotifier {
       notifyListeners();
 
       await repository.login(email, password);
-      
-      isAuthenticated = true;
 
+      isAuthenticated = true;
     } catch (e) {
       error = e.toString();
       isAuthenticated = false;
@@ -39,9 +55,8 @@ class AuthProvider extends ChangeNotifier {
       notifyListeners();
 
       await repository.loginWithGoogle();
-      
-      isAuthenticated = true;
 
+      isAuthenticated = true;
     } catch (e) {
       error = e.toString();
       isAuthenticated = false;
@@ -58,7 +73,7 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Verificar el estado de autenticación al iniciar la app (opcional pero recomendado)
+  // Verificar el estado de autenticación al iniciar la app
   Future<void> checkAuthStatus() async {
     try {
       // Verificar si hay un token guardado

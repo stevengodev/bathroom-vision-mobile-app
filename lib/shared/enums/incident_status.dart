@@ -1,0 +1,4 @@
+enum IncidentStatus {
+  PENDING,
+  RESOLVED,
+}

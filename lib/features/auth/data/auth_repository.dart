@@ -17,16 +17,15 @@ class AuthRepository {
 
   AuthRepository(this.authApi, this.storage);
 
-  // Login con email y contraseña
-  Future<void> login(String email, String password) async {
-    // Llamar a la API para hacer login
-    final jwt = await authApi.login(email, password);
+  Future<void> register(String name, String email, String password) async {
+    await authApi.register(name, email, password);
+  }
 
-    // Guardar el token en SecureStorage
+  Future<void> login(String email, String password) async {
+    final jwt = await authApi.login(email, password);
     await storage.saveToken(jwt);
   }
 
-  // Login con Google
   Future<void> loginWithGoogle() async {
 
     await googleSignIn.signOut();
@@ -50,7 +49,6 @@ class AuthRepository {
     await storage.saveToken(jwt);
   }
 
-  // Verificar si el usuario está autenticado
   Future<bool> isAuthenticated() async {
     try {
       final token = await storage.getToken();
@@ -60,7 +58,6 @@ class AuthRepository {
     }
   }
 
-  // Logout
   Future<void> logout() async {
     await googleSignIn.signOut();
     await storage.deleteToken();

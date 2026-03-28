@@ -1,5 +1,5 @@
 class UserResponse {
-  final String id;
+  final int id;
   final String name;
   final String email;
   final String role;

@@ -7,6 +7,22 @@ class AuthApi {
 
   AuthApi(this.apiClient);
 
+  Future<String> register(String name, String email, String password) async {
+    final response = await apiClient.dio.post(
+      "/api/auth/register",
+      data: {
+        "name": name,
+        "email": email,
+        "password": password,
+      },
+    );
+
+    print("Respuesta del registro: ${response.data}");
+
+    return response.data["accessToken"];
+
+  }
+
   Future<String> loginWithGoogle(String idToken) async {
 
     final response = await apiClient.dio.post(
