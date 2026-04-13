@@ -1,0 +1,1 @@
+enum IncidentMessageCategory { LIMPIEZA, MANTENIMIENTO }

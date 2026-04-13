@@ -31,7 +31,6 @@ class IncidentCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
 
-                // TÍTULO + ESTADO
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -71,7 +70,7 @@ class IncidentCard extends StatelessWidget {
 
                 // UBICACIÓN
                 Text(
-                  'Bloque ${incident.bathroom.blockName} - Piso ${incident.bathroom.floor}',
+                  '${incident.bathroom.blockName} - Piso ${incident.bathroom.floor}',
                   style: const TextStyle(fontSize: 13),
                 ),
 
@@ -79,7 +78,7 @@ class IncidentCard extends StatelessWidget {
 
                 // REPORTER
                 Text(
-                  'Reportado por: ${incident.reporter.email}',
+                  'Reportado por: ${incident.reporter.name}',
                   style: const TextStyle(fontSize: 12, color: Colors.black87),
                 ),
 

@@ -25,19 +25,15 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<void> _handleLogin() async {
-    if (!_formKey.currentState!.validate()) {
-      return;
-    }
+    if (!_formKey.currentState!.validate()) return;
 
     final authProvider = context.read<AuthProvider>();
 
-    // Intentar hacer login
     await authProvider.login(
       _emailController.text.trim(),
       _passwordController.text,
     );
 
-    // Si el login es exitoso, navegar a la página de navegación
     if (mounted && authProvider.isAuthenticated) {
       Navigator.pushReplacementNamed(context, '/navegacion');
     }
@@ -47,7 +43,6 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     final authProvider = context.watch<AuthProvider>();
 
-    // Mostrar error si existe
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (authProvider.error != null) {
         ErrorFlashCard.error(
@@ -56,21 +51,25 @@ class _LoginPageState extends State<LoginPage> {
           actionLabel: 'Reintentar',
           onAction: () => _handleLogin(),
         );
-        // Limpiar el error
         authProvider.error = null;
       }
     });
 
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 30),
+        child: SingleChildScrollView(
+          padding: EdgeInsets.fromLTRB(
+            30,
+            40,
+            30,
+            MediaQuery.of(context).viewInsets.bottom + 20,
+          ),
           child: Form(
             key: _formKey,
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                const SizedBox(height: 40),
-
                 const Text(
                   "BAÑOVISIÓN",
                   style: TextStyle(
@@ -95,7 +94,6 @@ class _LoginPageState extends State<LoginPage> {
 
                 const SizedBox(height: 30),
 
-                // Campo de email con validación
                 TextFormField(
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
@@ -108,7 +106,7 @@ class _LoginPageState extends State<LoginPage> {
                       return 'Por favor ingresa tu correo';
                     }
                     if (!value.contains('@')) {
-                      return 'Por favor ingresa un correo válido';
+                      return 'Correo inválido';
                     }
                     return null;
                   },
@@ -117,7 +115,6 @@ class _LoginPageState extends State<LoginPage> {
 
                 const SizedBox(height: 15),
 
-                // Campo de contraseña con validación
                 TextFormField(
                   controller: _passwordController,
                   obscureText: true,
@@ -130,7 +127,7 @@ class _LoginPageState extends State<LoginPage> {
                       return 'Por favor ingresa tu contraseña';
                     }
                     if (value.length < 6) {
-                      return 'La contraseña debe tener al menos 6 caracteres';
+                      return 'Mínimo 6 caracteres';
                     }
                     return null;
                   },
@@ -139,7 +136,6 @@ class _LoginPageState extends State<LoginPage> {
 
                 const SizedBox(height: 20),
 
-                // Botón de continuar con manejo de login
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
@@ -147,9 +143,6 @@ class _LoginPageState extends State<LoginPage> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF8FD99F),
                       padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
                     ),
                     child: authProvider.loading
                         ? const SizedBox(
@@ -157,13 +150,13 @@ class _LoginPageState extends State<LoginPage> {
                             width: 20,
                             child: CircularProgressIndicator(
                               strokeWidth: 2,
-                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                              valueColor:
+                                  AlwaysStoppedAnimation<Color>(Colors.white),
                             ),
                           )
                         : const Text(
                             "Continuar",
                             style: TextStyle(
-                              fontSize: 16,
                               fontWeight: FontWeight.bold,
                               color: Colors.white,
                             ),
@@ -179,8 +172,6 @@ class _LoginPageState extends State<LoginPage> {
 
                 const GoogleLoginButton(),
 
-                
-
                 if (authProvider.error != null)
                   Padding(
                     padding: const EdgeInsets.only(top: 20),
@@ -191,36 +182,36 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ),
 
-                  TextButton(
-                      onPressed: () {
-                        Navigator.pushReplacementNamed(context, '/register');
-                      },
-                      child: const Text.rich(
-                        TextSpan(
-                          text: "¿No tienes cuenta? ",
-                          style: TextStyle(color: Colors.black),
-                          children: [
-                            TextSpan(
-                              text: "Regístrate",
-                              style: TextStyle(
-                                color: Color(0xFF8FD99F),
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
+                const SizedBox(height: 10),
 
-                const Spacer(),
+                TextButton(
+                  onPressed: () {
+                    Navigator.pushReplacementNamed(context, '/register');
+                  },
+                  child: const Text.rich(
+                    TextSpan(
+                      text: "¿No tienes cuenta? ",
+                      style: TextStyle(color: Colors.black),
+                      children: [
+                        TextSpan(
+                          text: "Regístrate",
+                          style: TextStyle(
+                            color: Color(0xFF8FD99F),
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 20),
 
                 const Text(
                   "Al hacer clic en continuar aceptas nuestros\nTérminos de servicio y Política de privacidad",
                   textAlign: TextAlign.center,
                   style: TextStyle(fontSize: 12),
                 ),
-
-                const SizedBox(height: 20),
               ],
             ),
           ),

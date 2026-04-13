@@ -3,6 +3,7 @@ import 'package:bathroom_vision/features/incidents/models/incident_created_respo
 import 'package:bathroom_vision/features/incidents/models/incident_message_response.dart';
 import 'package:bathroom_vision/features/incidents/models/incident_request.dart';
 import 'package:bathroom_vision/features/incidents/models/incident_response.dart';
+import 'package:bathroom_vision/shared/enums/incident_message_category.dart';
 import 'package:bathroom_vision/shared/enums/incident_status.dart';
 
 class IncidentApi {
@@ -18,10 +19,21 @@ class IncidentApi {
         .toList();
   }
 
-  Future<List<IncidentResponse>> getAllIncidents(IncidentStatus status) async {
-    final response = await apiClient.dio.get("/api/incidents", queryParameters: {
-      "status": status.name,
-    });
+  Future<List<IncidentResponse>> getAllIncidents({
+    required IncidentStatus status,
+    IncidentMessageCategory? category
+  }) async {
+
+    final queryParams = <String, dynamic>{"status": status.name};
+
+    if (category != null) {
+      queryParams["category"] = category.name;
+    }
+
+    final response = await apiClient.dio.get(
+      "/api/incidents",
+      queryParameters: queryParams,
+    );
     final List data = response.data;
     return data.map((e) => IncidentResponse.fromJson(e)).toList();
   }

@@ -31,22 +31,21 @@ class _RegisterPageState extends State<RegisterPage> {
 
     final authProvider = context.read<AuthProvider>();
 
-      await authProvider.register(
-        _nameController.text.trim(),
-        _emailController.text.trim(),
-        _passwordController.text,
-      );
+    await authProvider.register(
+      _nameController.text.trim(),
+      _emailController.text.trim(),
+      _passwordController.text,
+    );
 
-      if (mounted && authProvider.isAuthenticated) {
-        Navigator.pushReplacementNamed(context, '/navegacion');
-      }
+    if (mounted && authProvider.isAuthenticated) {
+      Navigator.pushReplacementNamed(context, '/navegacion');
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final authProvider = context.watch<AuthProvider>();
 
-    // Mostrar error si existe
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (authProvider.error != null) {
         ErrorFlashCard.error(
@@ -55,21 +54,25 @@ class _RegisterPageState extends State<RegisterPage> {
           actionLabel: 'Reintentar',
           onAction: () => _handleRegister(),
         );
-        // Limpiar el error
         authProvider.error = null;
       }
     });
 
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 30),
+        child: SingleChildScrollView(
+          padding: EdgeInsets.fromLTRB(
+            30,
+            40,
+            30,
+            MediaQuery.of(context).viewInsets.bottom + 20,
+          ),
           child: Form(
             key: _formKey,
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                const SizedBox(height: 40),
-
                 const Text(
                   "BAÑOVISIÓN",
                   style: TextStyle(
@@ -97,7 +100,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 TextFormField(
                   controller: _nameController,
                   decoration: const InputDecoration(
-                    hintText: "Nombre completo (Ej: Jhon Lazaro Villadiego)",
+                    hintText: "Nombres completos",
                     border: OutlineInputBorder(),
                   ),
                   validator: (value) {
@@ -105,7 +108,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       return 'Por favor ingresa tu nombre completo';
                     }
                     if (value.trim().split(' ').length < 2) {
-                      return 'Ingresa al menos nombre y apellido';
+                      return 'Ingresa nombre y apellido';
                     }
                     return null;
                   },
@@ -165,7 +168,15 @@ class _RegisterPageState extends State<RegisterPage> {
                       padding: const EdgeInsets.symmetric(vertical: 16),
                     ),
                     child: authProvider.loading
-                        ? const CircularProgressIndicator(color: Colors.white)
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor:
+                                  AlwaysStoppedAnimation<Color>(Colors.white),
+                            ),
+                          )
                         : const Text(
                             "Registrarse",
                             style: TextStyle(color: Colors.white),
@@ -187,18 +198,41 @@ class _RegisterPageState extends State<RegisterPage> {
                     child: Text(
                       authProvider.error!,
                       style: const TextStyle(color: Colors.red),
+                      textAlign: TextAlign.center,
                     ),
                   ),
 
-                const Spacer(),
+                const SizedBox(height: 10),
+
+                /// 👇 NUEVO: ir a login
+                TextButton(
+                  onPressed: () {
+                    Navigator.pushReplacementNamed(context, '/login');
+                  },
+                  child: const Text.rich(
+                    TextSpan(
+                      text: "¿Ya tienes cuenta? ",
+                      style: TextStyle(color: Colors.black),
+                      children: [
+                        TextSpan(
+                          text: "Inicia sesión",
+                          style: TextStyle(
+                            color: Color(0xFF8FD99F),
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 20),
 
                 const Text(
                   "Al registrarte aceptas nuestros\nTérminos y condiciones",
                   textAlign: TextAlign.center,
                   style: TextStyle(fontSize: 12),
                 ),
-
-                const SizedBox(height: 20),
               ],
             ),
           ),

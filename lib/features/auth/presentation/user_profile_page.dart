@@ -11,13 +11,16 @@ class UserProfilePage extends StatefulWidget {
 }
 
 class _UserProfilePageState extends State<UserProfilePage> {
-
   @override
   void initState() {
     super.initState();
 
     Future.microtask(() {
-      Provider.of<UserProvider>(context, listen: false).loadUserProfile();
+      final provider = Provider.of<UserProvider>(context, listen: false);
+
+      if (provider.user == null && !provider.loading) {
+        provider.loadUserProfile();
+      }
     });
   }
 
@@ -45,7 +48,6 @@ class _UserProfilePageState extends State<UserProfilePage> {
       ),
       body: Consumer<UserProvider>(
         builder: (context, provider, _) {
-
           // Loading
           if (provider.loading) {
             return const Center(child: CircularProgressIndicator());
@@ -60,7 +62,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
                 onAction: () => provider.loadUserProfile(),
               );
             });
-            
+
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -134,9 +136,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
 
                       Text(
                         email,
-                        style: const TextStyle(
-                          color: Colors.white70,
-                        ),
+                        style: const TextStyle(color: Colors.white70),
                       ),
                     ],
                   ),
@@ -178,10 +178,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
       children: [
         Icon(icon, color: Colors.grey[700]),
         const SizedBox(width: 10),
-        Text(
-          '$label:',
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
+        Text('$label:', style: const TextStyle(fontWeight: FontWeight.bold)),
         const SizedBox(width: 10),
         Expanded(child: Text(value)),
       ],

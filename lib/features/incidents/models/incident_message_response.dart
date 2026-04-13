@@ -2,11 +2,13 @@ class IncidentMessageResponse {
   final int? id;
   final String code;
   final String description;
+  final String category;
 
   const IncidentMessageResponse({
     required this.id,
     required this.code,
     required this.description,
+    required this.category,
   });
 
   factory IncidentMessageResponse.fromJson(Map<String, dynamic> json) {
@@ -14,6 +16,7 @@ class IncidentMessageResponse {
       id: json["id"],
       code: json["code"],
       description: json["description"],
+      category: json["category"],
     );
   }
 
@@ -22,6 +25,7 @@ class IncidentMessageResponse {
       "id": id,
       "code": code,
       "description": description,
+      "category": category,
     };
   }
 }

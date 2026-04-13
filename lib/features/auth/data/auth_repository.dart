@@ -40,6 +40,8 @@ class AuthRepository {
 
     final idToken = auth.idToken;
 
+    print("ID Token: $idToken");
+
     if (idToken == null) {
       throw Exception("No se obtuvo idToken");
     }

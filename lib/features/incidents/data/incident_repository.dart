@@ -3,6 +3,7 @@ import 'package:bathroom_vision/features/incidents/models/incident_created_respo
 import 'package:bathroom_vision/features/incidents/models/incident_message_response.dart';
 import 'package:bathroom_vision/features/incidents/models/incident_request.dart';
 import 'package:bathroom_vision/features/incidents/models/incident_response.dart';
+import 'package:bathroom_vision/shared/enums/incident_message_category.dart';
 import 'package:bathroom_vision/shared/enums/incident_status.dart';
 
 class IncidentRepository {
@@ -14,8 +15,8 @@ class IncidentRepository {
     return api.getIncidentMessages();
   }
 
-  Future<List<IncidentResponse>> getAllIncidents(IncidentStatus status) {
-    return api.getAllIncidents(status);
+  Future<List<IncidentResponse>> getAllIncidents(IncidentStatus status, {IncidentMessageCategory? category}) {
+    return api.getAllIncidents(status: status, category: category);
   }
 
   Future<IncidentResponse> getIncidentById(int id) {

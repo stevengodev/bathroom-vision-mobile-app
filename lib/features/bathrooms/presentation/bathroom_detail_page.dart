@@ -7,7 +7,7 @@ import 'package:bathroom_vision/features/bathrooms/presentation/bathroom_provide
 import 'package:bathroom_vision/features/bathrooms/presentation/bathroom_status_page.dart';
 import 'package:bathroom_vision/features/incidents/models/incident_request.dart';
 import 'package:bathroom_vision/features/incidents/presentation/incident_provider.dart';
-import 'package:bathroom_vision/shared/enums/bathroom_status.dart';
+import 'package:bathroom_vision/shared/utils/status_color.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -31,23 +31,8 @@ class _BathroomDetailPageState extends State<BathroomDetailPage> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<IncidentProvider>().loadMessages();
-      context.read<IncidentProvider>().loadIncidentsByBathroom(
-        widget.bathroom.id,
-      );
+      context.read<IncidentProvider>().loadIncidentsByBathroom(widget.bathroom.id);
     });
-  }
-
-  Color _getStatusColor(BathroomStatus status) {
-    switch (status) {
-      case BathroomStatus.DISPONIBLE:
-        return Colors.green;
-      case BathroomStatus.EN_LIMPIEZA:
-        return Colors.orange;
-      case BathroomStatus.EN_MANTENIMIENTO:
-        return Colors.yellow[700]!;
-      case BathroomStatus.FUERA_DE_SERVICIO:
-        return Colors.red;
-    }
   }
 
   @override
@@ -59,6 +44,21 @@ class _BathroomDetailPageState extends State<BathroomDetailPage> {
       backgroundColor: Colors.grey[100],
       body: Consumer<IncidentProvider>(
         builder: (context, provider, _) {
+          /// AGRUPAR INCIDENTES
+          final Map<int, List<dynamic>> grouped = {};
+
+          for (var incident in provider.incidents) {
+            final key = incident.incidentMessage.id!;
+
+            if (!grouped.containsKey(key)) {
+              grouped[key] = [];
+            }
+
+            grouped[key]!.add(incident);
+          }
+
+          final groupedList = grouped.entries.toList();
+
           return SingleChildScrollView(
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -67,7 +67,7 @@ class _BathroomDetailPageState extends State<BathroomDetailPage> {
                 // Tarjeta principal
                 BathroomCard(
                   bathroom: bathroom,
-                  statusColor: _getStatusColor(bathroom.status),
+                  statusColor: getStatusColor(bathroom.status),
                   onTap: () {},
                 ),
 
@@ -95,13 +95,16 @@ class _BathroomDetailPageState extends State<BathroomDetailPage> {
                 const SizedBox(height: 10),
 
                 if (showIncidents)
-                  provider.incidents.isEmpty
+                  groupedList.isEmpty
                       ? const Text("No hay incidentes")
                       : Column(
-                          children: provider.incidents.map((incident) {
+                          children: groupedList.map((entry) {
+                            final incidents = entry.value;
+                            final first = incidents.first;
+
                             return _incidentCard(
-                              incident.incidentMessage.description,
-                              incident.status,
+                              first.incidentMessage.description,
+                              "${incidents.length} reportes",
                             );
                           }).toList(),
                         ),
@@ -207,10 +210,7 @@ class _BathroomDetailPageState extends State<BathroomDetailPage> {
                                   .deleteBathroom(bathroom.id);
 
                               if (mounted) {
-                                Navigator.pop(
-                                  context,
-                                  true,
-                                ); // vuelve y notifica
+                                Navigator.pop(context, true);
                               }
                             } catch (e) {
                               ScaffoldMessenger.of(context).showSnackBar(
@@ -321,26 +321,34 @@ class _BathroomDetailPageState extends State<BathroomDetailPage> {
     );
   }
 
-  // Incidente UI
-  Widget _incidentCard(String title, String time) {
+  Widget _incidentCard(String title, String count) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.all(12),
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: Colors.orange[100],
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: Colors.orange.shade300),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(title),
-          Text(time, style: const TextStyle(fontSize: 12)),
+          Expanded(
+            child: Text(
+              title,
+              style: const TextStyle(fontWeight: FontWeight.w600),
+            ),
+          ),
+          Chip(
+            label: Text(count),
+            backgroundColor: Colors.orange.shade200,
+          ),
         ],
       ),
     );
   }
 
-  // Botón tipo Duolingo
+  /// BOTÓN tipo Duolingo
   Widget _duolingoButton({
     required String text,
     required bool isSelected,

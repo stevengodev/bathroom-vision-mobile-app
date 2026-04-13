@@ -1,3 +1,4 @@
+import 'package:bathroom_vision/shared/enums/incident_message_category.dart';
 import 'package:bathroom_vision/shared/enums/incident_status.dart';
 import 'package:flutter/material.dart';
 import 'package:bathroom_vision/features/incidents/data/incident_repository.dart';
@@ -17,12 +18,12 @@ class IncidentProvider extends ChangeNotifier {
 
   bool loading = false;
 
-  Future<void> loadAllIncidents(IncidentStatus status) async {
+  Future<void> loadAllIncidents(IncidentStatus status, {IncidentMessageCategory? category}) async {
     loading = true;
     notifyListeners();
 
     try {
-      incidents = await repository.getAllIncidents(status);
+      incidents = await repository.getAllIncidents(status, category: category);
     } catch (e) {
       print(e);
     }
