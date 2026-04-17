@@ -6,6 +6,7 @@ import 'package:bathroom_vision/features/auth/data/user_api.dart';
 import 'package:bathroom_vision/features/auth/data/user_repository.dart';
 import 'package:bathroom_vision/features/auth/presentation/auth_provider.dart';
 import 'package:bathroom_vision/features/auth/presentation/login_page.dart';
+import 'package:bathroom_vision/features/auth/presentation/manage_user_page.dart';
 import 'package:bathroom_vision/features/auth/presentation/register_page.dart';
 import 'package:bathroom_vision/features/auth/presentation/user_profile_page.dart';
 import 'package:bathroom_vision/features/auth/presentation/user_provider.dart';
@@ -101,6 +102,7 @@ class MyApp extends StatelessWidget {
             const PendingIncidentsPage(),
         '/blocks': (context) => const BlocksPage(),
         '/user-profile': (context) => const UserProfilePage(),
+        '/gestionar-usuarios': (context) => const ManageUserPage(),
       },
     );
   }

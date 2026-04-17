@@ -139,6 +139,15 @@ class _NavigationPageState extends State<NavigationPage> {
                           );
                         },
                       ),
+
+                    if (user.role == Role.ADMIN.name)
+                      MenuButton(
+                        title: 'Gestionar Usuarios',
+                        onTap: () {
+                          Navigator.pushNamed(context, '/gestionar-usuarios');
+                        },
+                      ),
+
                     MenuButton(
                       title: 'Mantenimientos',
                       onTap: () {
