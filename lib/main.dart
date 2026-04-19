@@ -36,29 +36,24 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await initializeDateFormatting('es', null);
-
   await dotenv.load(fileName: ".env");
 
   final storage = SecureStorage();
   final apiClient = ApiClient(storage);
 
+  // APIs
   final authApi = AuthApi(apiClient);
-  final authRepository = AuthRepository(authApi, storage);
-
-  final blockApi = BlockApi(apiClient);
-  final blockRepository = BlockRepository(blockApi);
-
-  final BathroomApi bathroomApi = BathroomApi(apiClient);
-  final bathroomRepository = BathroomRepository(bathroomApi);
-
-  final IncidentApi incidentApi = IncidentApi(apiClient);
-  final incidentRepository = IncidentRepository(incidentApi);
-
-  final CleaningScheduleApi cleaningScheduleApi = CleaningScheduleApi(apiClient);
-  final cleaningScheduleRepository = CleaningScheduleRepository(cleaningScheduleApi);
-
   final userApi = UserApi(apiClient);
-  final userRepository = UserRepository(userApi);
+
+  // Repositories
+  final authRepository = AuthRepository(authApi, storage);
+  final userRepository = UserRepository(userApi, authApi);
+
+  final blockRepository = BlockRepository(BlockApi(apiClient));
+  final bathroomRepository = BathroomRepository(BathroomApi(apiClient));
+  final incidentRepository = IncidentRepository(IncidentApi(apiClient));
+  final cleaningScheduleRepository =
+      CleaningScheduleRepository(CleaningScheduleApi(apiClient));
 
   runApp(
     MultiProvider(
@@ -68,7 +63,8 @@ Future<void> main() async {
         ChangeNotifierProvider(create: (_) => BlocksProvider(blockRepository)),
         ChangeNotifierProvider(create: (_) => BathroomProvider(bathroomRepository)),
         ChangeNotifierProvider(create: (_) => IncidentProvider(incidentRepository)),
-        ChangeNotifierProvider(create: (_) => CleaningScheduleProvider(cleaningScheduleRepository)),
+        ChangeNotifierProvider(
+            create: (_) => CleaningScheduleProvider(cleaningScheduleRepository)),
       ],
       child: const MyApp(),
     ),
@@ -86,29 +82,25 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(primarySwatch: Colors.green, fontFamily: 'Roboto'),
       home: const LoginPage(),
       routes: {
-        '/login': (context) => const LoginPage(),
+        '/login': (_) => const LoginPage(),
         '/register': (_) => const RegisterPage(),
-        '/navegacion': (context) => const NavigationPage(),
-        '/inicio': (context) => const PlaceholderPage(title: 'Inicio'),
-        '/banos-disponibles': (context) =>
+        '/navegacion': (_) => const NavigationPage(),
+        '/inicio': (_) => const PlaceholderPage(title: 'Inicio'),
+        '/banos-disponibles': (_) =>
             const PlaceholderPage(title: 'Baños disponibles'),
-        '/horarios-limpiezas': (context) =>
-            const CleaningScheduleFormPage(),
-        '/horarios-limpiezas/me': (context) =>
-            const WeeklySchedulePage(),
-        '/mantenimientos': (context) =>
+        '/horarios-limpiezas': (_) => const CleaningScheduleFormPage(),
+        '/horarios-limpiezas/me': (_) => const WeeklySchedulePage(),
+        '/mantenimientos': (_) =>
             const PlaceholderPage(title: 'Mantenimientos'),
-        '/incidencias': (context) =>
-            const PendingIncidentsPage(),
-        '/blocks': (context) => const BlocksPage(),
-        '/user-profile': (context) => const UserProfilePage(),
-        '/gestionar-usuarios': (context) => const ManageUserPage(),
+        '/incidencias': (_) => const PendingIncidentsPage(),
+        '/blocks': (_) => const BlocksPage(),
+        '/user-profile': (_) => const UserProfilePage(),
+        '/gestionar-usuarios': (_) => const ManageUserPage(),
       },
     );
   }
 }
 
-// Página placeholder para las rutas
 class PlaceholderPage extends StatelessWidget {
   final String title;
 
@@ -127,15 +119,12 @@ class PlaceholderPage extends StatelessWidget {
           children: [
             Icon(Icons.construction, size: 80, color: Colors.grey[400]),
             const SizedBox(height: 20),
-            Text(
-              title,
-              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
+            Text(title,
+                style:
+                    const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
             const SizedBox(height: 10),
-            Text(
-              'Esta página está en construcción',
-              style: TextStyle(fontSize: 16, color: Colors.grey[600]),
-            ),
+            Text('Esta página está en construcción',
+                style: TextStyle(fontSize: 16, color: Colors.grey[600])),
           ],
         ),
       ),

@@ -10,12 +10,12 @@ class AuthProvider extends ChangeNotifier {
   String? error;
   bool isAuthenticated = false;
 
-  Future<void> register(String name, String email, String password) async {
+  Future<void> register(String name, String email, String password, String role) async {
     loading = true;
     notifyListeners();
 
     try {
-      await repository.register(name, email, password);
+      await repository.register(name, email, password, role);
 
       isAuthenticated = true;
       error = null;
@@ -28,7 +28,6 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  // Login con email y contraseña
   Future<void> login(String email, String password) async {
     try {
       loading = true;
@@ -47,7 +46,6 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Login con Google
   Future<void> loginWithGoogle() async {
     try {
       loading = true;
@@ -66,17 +64,16 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Logout
   Future<void> logout() async {
     await repository.logout();
     isAuthenticated = false;
     notifyListeners();
   }
 
-  // Verificar el estado de autenticación al iniciar la app
+
   Future<void> checkAuthStatus() async {
     try {
-      // Verificar si hay un token guardado
+      
       final hasValidToken = await repository.isAuthenticated();
       isAuthenticated = hasValidToken;
       notifyListeners();

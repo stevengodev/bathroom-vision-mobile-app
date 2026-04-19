@@ -80,7 +80,7 @@ class GroupedIncidentCard extends StatelessWidget {
             const SizedBox(height: 4),
 
             ...dates.take(3).map(
-              (d) => Text("${formatter.format(d)}"),
+              (d) => Text(formatter.format(d)),
             ),
 
             if (dates.length > 3) Text("+${dates.length - 3} más"),

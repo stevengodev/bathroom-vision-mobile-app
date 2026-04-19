@@ -18,6 +18,9 @@ class _RegisterPageState extends State<RegisterPage> {
   final _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
+ 
+  String role = "CLEANER";
+
   @override
   void dispose() {
     _nameController.dispose();
@@ -35,6 +38,7 @@ class _RegisterPageState extends State<RegisterPage> {
       _nameController.text.trim(),
       _emailController.text.trim(),
       _passwordController.text,
+      role, 
     );
 
     if (mounted && authProvider.isAuthenticated) {
@@ -75,18 +79,12 @@ class _RegisterPageState extends State<RegisterPage> {
               children: [
                 const Text(
                   "BAÑOVISIÓN",
-                  style: TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
                 ),
 
                 const SizedBox(height: 20),
 
-                Image.asset(
-                  "assets/images/bathroom.png",
-                  height: 120,
-                ),
+                Image.asset("assets/images/bathroom.png", height: 120),
 
                 const SizedBox(height: 20),
 
@@ -107,9 +105,6 @@ class _RegisterPageState extends State<RegisterPage> {
                     if (value == null || value.isEmpty) {
                       return 'Por favor ingresa tu nombre completo';
                     }
-                    if (value.trim().split(' ').length < 2) {
-                      return 'Ingresa nombre y apellido';
-                    }
                     return null;
                   },
                   enabled: !authProvider.loading,
@@ -127,9 +122,6 @@ class _RegisterPageState extends State<RegisterPage> {
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Por favor ingresa tu correo';
-                    }
-                    if (!value.contains('@')) {
-                      return 'Correo inválido';
                     }
                     return null;
                   },
@@ -157,6 +149,32 @@ class _RegisterPageState extends State<RegisterPage> {
                   enabled: !authProvider.loading,
                 ),
 
+                const SizedBox(height: 15),
+
+               
+                DropdownButtonFormField<String>(
+                  value: role,
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                    hintText: "Selecciona rol",
+                  ),
+                  items: const [
+                    DropdownMenuItem(
+                      value: "CLEANER",
+                      child: Text("Cleaner"),
+                    ),
+                    DropdownMenuItem(
+                      value: "MAINTAINER",
+                      child: Text("Maintainer"),
+                    ),
+                  ],
+                  onChanged: (value) {
+                    setState(() {
+                      role = value!;
+                    });
+                  },
+                ),
+
                 const SizedBox(height: 20),
 
                 SizedBox(
@@ -168,14 +186,9 @@ class _RegisterPageState extends State<RegisterPage> {
                       padding: const EdgeInsets.symmetric(vertical: 16),
                     ),
                     child: authProvider.loading
-                        ? const SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              valueColor:
-                                  AlwaysStoppedAnimation<Color>(Colors.white),
-                            ),
+                        ? const CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2,
                           )
                         : const Text(
                             "Registrarse",
@@ -186,52 +199,15 @@ class _RegisterPageState extends State<RegisterPage> {
 
                 const SizedBox(height: 20),
 
-                const Text("o"),
+                const GoogleLoginButton(),
 
                 const SizedBox(height: 20),
 
-                const GoogleLoginButton(),
-
-                if (authProvider.error != null)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 20),
-                    child: Text(
-                      authProvider.error!,
-                      style: const TextStyle(color: Colors.red),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-
-                const SizedBox(height: 10),
-
-                /// 👇 NUEVO: ir a login
                 TextButton(
                   onPressed: () {
                     Navigator.pushReplacementNamed(context, '/login');
                   },
-                  child: const Text.rich(
-                    TextSpan(
-                      text: "¿Ya tienes cuenta? ",
-                      style: TextStyle(color: Colors.black),
-                      children: [
-                        TextSpan(
-                          text: "Inicia sesión",
-                          style: TextStyle(
-                            color: Color(0xFF8FD99F),
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 20),
-
-                const Text(
-                  "Al registrarte aceptas nuestros\nTérminos y condiciones",
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 12),
+                  child: const Text("¿Ya tienes cuenta? Inicia sesión"),
                 ),
               ],
             ),

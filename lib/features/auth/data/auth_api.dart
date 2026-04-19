@@ -7,13 +7,14 @@ class AuthApi {
 
   AuthApi(this.apiClient);
 
-  Future<String> register(String name, String email, String password) async {
+  Future<String> register(String name, String email, String password, String role) async {
     final response = await apiClient.dio.post(
       "/api/auth/register",
       data: {
         "name": name,
         "email": email,
         "password": password,
+        "role": role,
       },
     );
 

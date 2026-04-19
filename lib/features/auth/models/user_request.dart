@@ -3,7 +3,7 @@ import 'package:bathroom_vision/shared/enums/role.dart';
 class UserRequest {
   final String name;
   final String email;
-  final String password;
+  final String? password;
   final Role role;
 
   UserRequest({

@@ -141,8 +141,16 @@ class _LoginPageState extends State<LoginPage> {
                   child: ElevatedButton(
                     onPressed: authProvider.loading ? null : _handleLogin,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF8FD99F),
-                      padding: const EdgeInsets.symmetric(vertical: 16),
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    ).copyWith(
+                      backgroundColor: WidgetStateProperty.resolveWith<Color>(
+                        (states) {
+                          if (states.contains(WidgetState.pressed)) {
+                            return const Color.fromARGB(255, 2, 150, 51); // color al presionar
+                          }
+                          return const Color(0xFF8FD99F); // color normal
+                        },
+                      ),
                     ),
                     child: authProvider.loading
                         ? const SizedBox(

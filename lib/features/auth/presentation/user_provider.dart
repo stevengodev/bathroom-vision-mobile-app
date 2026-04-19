@@ -76,15 +76,12 @@ class UserProvider extends ChangeNotifier {
         request: request,
       );
 
-      // Actualizar el usuario en la lista si existe
       if (users != null) {
         final index = users!.indexWhere((u) => u.id == id);
         if (index != -1) {
           users![index] = updatedUser;
         }
       }
-
-      // Si el usuario actualizado es el perfil actual, actualizarlo también
       if (user != null && user!.id == id) {
         user = updatedUser;
       }
@@ -95,5 +92,38 @@ class UserProvider extends ChangeNotifier {
     loading = false;
     notifyListeners();
   }
+
+
+
+Future<void> registerUser(
+  String name,
+  String email,
+  String password,
+  String role,
+) async {
+  loading = true;
+  error = null;
+  notifyListeners();
+
+  try {
+    await userRepository.registerUser(
+      name,
+      email,
+      password,
+      role,
+    );
+
+    await loadUsersByRoles([
+      Role.MAINTAINER,
+      Role.CLEANER,
+    ]);
+
+  } catch (e) {
+    error = e.toString();
+  } finally {
+    loading = false;
+    notifyListeners();
+  }
+}
 
 }
