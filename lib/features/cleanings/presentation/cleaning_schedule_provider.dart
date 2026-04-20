@@ -1,6 +1,7 @@
 import 'package:bathroom_vision/features/cleanings/data/cleaning_schedule_repository.dart';
 import 'package:bathroom_vision/features/cleanings/models/cleaning_schedule_request.dart';
 import 'package:bathroom_vision/features/cleanings/models/cleaning_schedule_response.dart';
+import 'package:bathroom_vision/core/errors/api_exception.dart';
 import 'package:flutter/material.dart';
 
 class CleaningScheduleProvider extends ChangeNotifier {
@@ -12,57 +13,19 @@ class CleaningScheduleProvider extends ChangeNotifier {
   CleaningScheduleResponse? selectedSchedule;
 
   bool loading = false;
+  String? error;
 
   Future<void> loadSchedules() async {
     loading = true;
+    error = null;
     notifyListeners();
 
     try {
       schedules = await repository.getAll();
+    } on ApiException catch (e) {
+      error = e.message;
     } catch (e) {
-      print(e);
-    }
-
-    loading = false;
-    notifyListeners();
-  }
-
-  Future<void> loadMySchedules() async {
-    loading = true;
-    notifyListeners();
-
-    try {
-      schedules = await repository.getMySchedules();
-    } catch (e) {
-      print(e);
-    }
-
-    loading = false;
-    notifyListeners();
-  }
-
-  Future<void> loadByBathroom(int bathroomId) async {
-    loading = true;
-    notifyListeners();
-
-    try {
-      schedules = await repository.getByBathroom(bathroomId);
-    } catch (e) {
-      print(e);
-    }
-
-    loading = false;
-    notifyListeners();
-  }
-
-  Future<void> loadById(int id) async {
-    loading = true;
-    notifyListeners();
-
-    try {
-      selectedSchedule = await repository.getById(id);
-    } catch (e) {
-      print(e);
+      error = "Error inesperado";
     }
 
     loading = false;
@@ -74,8 +37,10 @@ class CleaningScheduleProvider extends ChangeNotifier {
       final newSchedule = await repository.create(request);
       schedules.add(newSchedule);
       notifyListeners();
+    } on ApiException catch (e) {
+      error = e.message;
     } catch (e) {
-      print(e);
+      error = "Error inesperado";
     }
   }
 
@@ -89,8 +54,10 @@ class CleaningScheduleProvider extends ChangeNotifier {
       }
 
       notifyListeners();
+    } on ApiException catch (e) {
+      error = e.message;
     } catch (e) {
-      print(e);
+      error = "Error inesperado";
     }
   }
 
@@ -99,8 +66,10 @@ class CleaningScheduleProvider extends ChangeNotifier {
       await repository.delete(id);
       schedules.removeWhere((s) => s.id == id);
       notifyListeners();
+    } on ApiException catch (e) {
+      error = e.message;
     } catch (e) {
-      print(e);
+      error = "Error inesperado";
     }
   }
 }

@@ -19,7 +19,8 @@ import 'package:bathroom_vision/features/blocks/presentation/blocks_page.dart';
 import 'package:bathroom_vision/features/blocks/presentation/blocks_provider.dart';
 import 'package:bathroom_vision/features/cleanings/data/cleaning_schedule_api.dart';
 import 'package:bathroom_vision/features/cleanings/data/cleaning_schedule_repository.dart';
-import 'package:bathroom_vision/features/cleanings/presentation/cleaning_schedule_form_page.dart';
+///import 'package:bathroom_vision/features/cleanings/presentation/cleaning_schedule_form_page.dart';
+import 'package:bathroom_vision/features/cleanings/presentation/cleaning_schedule_list_page.dart';
 import 'package:bathroom_vision/features/cleanings/presentation/cleaning_schedule_provider.dart';
 import 'package:bathroom_vision/features/cleanings/presentation/my_cleaning_schedules_page.dart';
 import 'package:bathroom_vision/features/incidents/data/incident_api.dart';
@@ -88,7 +89,7 @@ class MyApp extends StatelessWidget {
         '/inicio': (_) => const PlaceholderPage(title: 'Inicio'),
         '/banos-disponibles': (_) =>
             const PlaceholderPage(title: 'Baños disponibles'),
-        '/horarios-limpiezas': (_) => const CleaningScheduleFormPage(),
+        '/horarios-limpiezas': (_) => const CleaningScheduleListPage(),
         '/horarios-limpiezas/me': (_) => const WeeklySchedulePage(),
         '/mantenimientos': (_) =>
             const PlaceholderPage(title: 'Mantenimientos'),

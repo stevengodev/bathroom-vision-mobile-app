@@ -1,17 +1,18 @@
 import 'package:bathroom_vision/features/auth/presentation/user_provider.dart';
-import 'package:bathroom_vision/features/bathrooms/models/bathroom_response.dart';
 import 'package:bathroom_vision/features/bathrooms/presentation/bathroom_provider.dart';
 import 'package:bathroom_vision/features/cleanings/models/cleaning_schedule_request.dart';
 import 'package:bathroom_vision/features/cleanings/presentation/cleaning_schedule_provider.dart';
+import 'package:bathroom_vision/features/cleanings/models/cleaning_schedule_response.dart';
 import 'package:bathroom_vision/shared/enums/cleaning_frecuency.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'package:bathroom_vision/features/auth/models/user_response.dart';
 import 'package:bathroom_vision/shared/enums/role.dart';
 
 class CleaningScheduleFormPage extends StatefulWidget {
-  const CleaningScheduleFormPage({super.key});
+  final CleaningScheduleResponse? schedule;
+
+  const CleaningScheduleFormPage({super.key, this.schedule});
 
   @override
   State<CleaningScheduleFormPage> createState() =>
@@ -21,8 +22,8 @@ class CleaningScheduleFormPage extends StatefulWidget {
 class _CleaningScheduleFormPageState extends State<CleaningScheduleFormPage> {
   final _formKey = GlobalKey<FormState>();
 
-  UserResponse? selectedUser;
-  BathroomResponse? selectedBathroom;
+  int? selectedUserId;
+  int? selectedBathroomId;
 
   DateTime? startDate;
   DateTime? endDate;
@@ -56,14 +57,33 @@ class _CleaningScheduleFormPageState extends State<CleaningScheduleFormPage> {
 
     Future.microtask(() {
       final userProvider = Provider.of<UserProvider>(context, listen: false);
-      final bathroomProvider = Provider.of<BathroomProvider>(
-        context,
-        listen: false,
-      );
+      final bathroomProvider =
+          Provider.of<BathroomProvider>(context, listen: false);
 
       userProvider.loadUsersByRole(Role.CLEANER);
-      bathroomProvider.loadBathrooms();
+      bathroomProvider.loadAllBathrooms();
     });
+
+    if (widget.schedule != null) {
+      final s = widget.schedule!;
+
+      startDate = DateTime.parse(s.startDate);
+      endDate = DateTime.parse(s.endDate);
+      frequency = s.frequency.name;
+
+      startTime = TimeOfDay(
+        hour: int.parse(s.startTime.split(":")[0]),
+        minute: int.parse(s.startTime.split(":")[1]),
+      );
+
+      endTime = TimeOfDay(
+        hour: int.parse(s.endTime.split(":")[0]),
+        minute: int.parse(s.endTime.split(":")[1]),
+      );
+
+      selectedBathroomId = s.bathroomId;
+      selectedUserId = null;
+    }
   }
 
   Future<void> pickTime(BuildContext context, bool isStart) async {
@@ -89,13 +109,16 @@ class _CleaningScheduleFormPageState extends State<CleaningScheduleFormPage> {
     final bathroomProvider = Provider.of<BathroomProvider>(context);
 
     final users = userProvider.users ?? [];
-
     final bathrooms = bathroomProvider.bathrooms;
 
     bool isWeekly = frequency == 'SEMANAL';
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Crear horario de limpieza")),
+      appBar: AppBar(
+        title: Text(widget.schedule == null
+            ? "Crear horario"
+            : "Editar horario"),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Form(
@@ -104,40 +127,41 @@ class _CleaningScheduleFormPageState extends State<CleaningScheduleFormPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // 🔹 Baños dinámicos
-                DropdownButtonFormField(
-                  decoration: const InputDecoration(
-                    labelText: "Selecciona baño",
-                  ),
-                  items: bathrooms.map<DropdownMenuItem>((b) {
+
+                /// 🔹 BAÑO
+                DropdownButtonFormField<int>(
+                  value: selectedBathroomId,
+                  decoration:
+                      const InputDecoration(labelText: "Selecciona baño"),
+                  items: bathrooms.map((b) {
                     return DropdownMenuItem(
-                      value: b,
+                      value: b.id,
                       child: Text(
-                        "${b.nameBlock} - Piso ${b.floor} - ${b.gender.name}",
-                      ),
+                          "${b.nameBlock} - Piso ${b.floor} - ${b.gender.name}"),
                     );
                   }).toList(),
-                  initialValue: selectedBathroom,
-                  onChanged: (v) => setState(() => selectedBathroom = v),
+                  onChanged: (v) => setState(() => selectedBathroomId = v),
                 ),
+
                 const SizedBox(height: 16),
 
-                // 🔹 Usuarios dinámicos (CLEANER)
-                DropdownButtonFormField<UserResponse>(
-                  decoration: const InputDecoration(
-                    labelText: "Usuario responsable",
-                  ),
-                  items: users
-                      .map(
-                        (u) => DropdownMenuItem(value: u, child: Text(u.name)),
-                      )
-                      .toList(),
-                  initialValue: selectedUser,
-                  onChanged: (v) => setState(() => selectedUser = v),
+                /// 🔹 USUARIO
+                DropdownButtonFormField<int>(
+                  value: selectedUserId,
+                  decoration:
+                      const InputDecoration(labelText: "Usuario responsable"),
+                  items: users.map((u) {
+                    return DropdownMenuItem(
+                      value: u.id,
+                      child: Text(u.name),
+                    );
+                  }).toList(),
+                  onChanged: (v) => setState(() => selectedUserId = v),
                 ),
+
                 const SizedBox(height: 16),
 
-                // Fecha inicio
+                /// 🔹 FECHA INICIO
                 TextFormField(
                   readOnly: true,
                   decoration: const InputDecoration(
@@ -150,22 +174,22 @@ class _CleaningScheduleFormPageState extends State<CleaningScheduleFormPage> {
                         : "",
                   ),
                   onTap: () async {
-                    DateTime? picked = await showDatePicker(
+                    final picked = await showDatePicker(
                       context: context,
                       initialDate: startDate ?? DateTime.now(),
                       firstDate: DateTime.now(),
-                      lastDate: DateTime.now().add(const Duration(days: 365)),
+                      lastDate:
+                          DateTime.now().add(const Duration(days: 365)),
                     );
                     if (picked != null) {
-                      setState(() {
-                        startDate = picked;
-                      });
+                      setState(() => startDate = picked);
                     }
                   },
                 ),
+
                 const SizedBox(height: 16),
 
-                // Fecha fin
+                /// 🔹 FECHA FIN
                 TextFormField(
                   readOnly: true,
                   decoration: const InputDecoration(
@@ -178,44 +202,47 @@ class _CleaningScheduleFormPageState extends State<CleaningScheduleFormPage> {
                         : "",
                   ),
                   onTap: () async {
-                    DateTime? picked = await showDatePicker(
+                    final picked = await showDatePicker(
                       context: context,
                       initialDate: endDate ?? DateTime.now(),
                       firstDate: DateTime.now(),
-                      lastDate: DateTime.now().add(const Duration(days: 365)),
+                      lastDate:
+                          DateTime.now().add(const Duration(days: 365)),
                     );
                     if (picked != null) {
-                      setState(() {
-                        endDate = picked;
-                      });
+                      setState(() => endDate = picked);
                     }
                   },
                 ),
+
                 const SizedBox(height: 16),
 
-                // Frecuencia
+                /// 🔹 FRECUENCIA
                 DropdownButtonFormField<String>(
-                  decoration: const InputDecoration(labelText: "Frecuencia"),
+                  value: frequencies.contains(frequency)
+                      ? frequency
+                      : null,
+                  decoration:
+                      const InputDecoration(labelText: "Frecuencia"),
                   items: frequencies
-                      .map((f) => DropdownMenuItem(value: f, child: Text(f)))
+                      .map((f) =>
+                          DropdownMenuItem(value: f, child: Text(f)))
                       .toList(),
-                  initialValue: frequency,
                   onChanged: (v) {
                     setState(() {
                       frequency = v;
-
                       if (frequency == 'DIARIO') {
                         selectedDays.clear();
                       }
                     });
                   },
                 ),
+
                 const SizedBox(height: 16),
 
-                // Días (solo WEEKLY)
+                /// 🔹 DÍAS
                 if (isWeekly) ...[
                   const Text("Días de la semana"),
-                  const SizedBox(height: 8),
                   Wrap(
                     spacing: 8,
                     children: daysOfWeek.map((day) {
@@ -225,11 +252,9 @@ class _CleaningScheduleFormPageState extends State<CleaningScheduleFormPage> {
                         selected: isSelected,
                         onSelected: (selected) {
                           setState(() {
-                            if (selected) {
-                              selectedDays.add(day);
-                            } else {
-                              selectedDays.remove(day);
-                            }
+                            selected
+                                ? selectedDays.add(day)
+                                : selectedDays.remove(day);
                           });
                         },
                       );
@@ -238,28 +263,22 @@ class _CleaningScheduleFormPageState extends State<CleaningScheduleFormPage> {
                   const SizedBox(height: 16),
                 ],
 
-                // Horas
+                /// 🔹 HORAS
                 Row(
                   children: [
                     Expanded(
                       child: ListTile(
-                        title: Text(
-                          startTime == null
-                              ? "Hora inicio"
-                              : startTime!.format(context),
-                        ),
-                        trailing: const Icon(Icons.access_time),
+                        title: Text(startTime == null
+                            ? "Hora inicio"
+                            : startTime!.format(context)),
                         onTap: () => pickTime(context, true),
                       ),
                     ),
                     Expanded(
                       child: ListTile(
-                        title: Text(
-                          endTime == null
-                              ? "Hora fin"
-                              : endTime!.format(context),
-                        ),
-                        trailing: const Icon(Icons.access_time),
+                        title: Text(endTime == null
+                            ? "Hora fin"
+                            : endTime!.format(context)),
                         onTap: () => pickTime(context, false),
                       ),
                     ),
@@ -268,51 +287,48 @@ class _CleaningScheduleFormPageState extends State<CleaningScheduleFormPage> {
 
                 const SizedBox(height: 24),
 
+                /// 🔥 BOTÓN
                 ElevatedButton(
                   onPressed: () async {
-                    if (selectedUser == null ||
-                        selectedBathroom == null ||
-                        startDate == null ||
-                        endDate == null ||
-                        startTime == null ||
-                        endTime == null ||
-                        frequency == null ||
-                        (frequency == 'SEMANAL' && selectedDays.isEmpty)) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text("Completa todos los campos"),
-                        ),
-                      );
-                      return;
-                    }
-
-                    final provider = Provider.of<CleaningScheduleProvider>(
+                    final provider =
+                        Provider.of<CleaningScheduleProvider>(
                       context,
                       listen: false,
                     );
 
                     final request = CleaningScheduleRequest(
-                      bathroomId: selectedBathroom!.id,
-                      userId: selectedUser!.id,
+                      bathroomId: selectedBathroomId!,
+                      userId: selectedUserId!,
                       startDate: formatDate(startDate!),
                       endDate: formatDate(endDate!),
-                      frequency: CleaningFrequency.values.byName(frequency!),
-                      daysOfWeek: frequency == 'SEMANAL' ? formatDays() : null,
+                      frequency: CleaningFrequency.values
+                          .byName(frequency!),
+                      daysOfWeek:
+                          frequency == 'SEMANAL' ? formatDays() : null,
                       startTime: formatTime(startTime!),
                       endTime: formatTime(endTime!),
                     );
 
-                    await provider.create(request);
+                    if (widget.schedule == null) {
+                      await provider.create(request);
+                    } else {
+                      await provider.update(
+                          widget.schedule!.id, request);
+                    }
 
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text("Horario creado correctamente"),
+                      SnackBar(
+                        content: Text(widget.schedule == null
+                            ? "Creado correctamente"
+                            : "Actualizado correctamente"),
                       ),
                     );
 
-                    Navigator.pop(context); // opcional
+                    Navigator.pop(context);
                   },
-                  child: const Text("Guardar horario"),
+                  child: Text(widget.schedule == null
+                      ? "Crear"
+                      : "Actualizar"),
                 ),
               ],
             ),
