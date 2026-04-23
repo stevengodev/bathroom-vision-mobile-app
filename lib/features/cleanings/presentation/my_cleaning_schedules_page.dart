@@ -229,7 +229,7 @@ class _WeeklySchedulePageState extends State<WeeklySchedulePage> {
           ),
           const SizedBox(width: 16),
           Text(
-            "Baño ${e.bathroomId}",
+            "${e.bathroom.nameBlock}",
             style: const TextStyle(
               color: Colors.white,
               fontSize: 16,

@@ -83,8 +83,13 @@ class _CleaningScheduleFormPageState extends State<CleaningScheduleFormPage> {
         minute: int.parse(s.endTime.split(":")[1]),
       );
 
-      selectedBathroomId = s.bathroomId;
-      selectedUserId = null;
+      selectedBathroomId = s.bathroom.id;
+      selectedUserId = s.userId;
+
+      if (s.daysOfWeek != null && s.daysOfWeek!.isNotEmpty) {
+        selectedDays.clear();
+        selectedDays.addAll(s.daysOfWeek!.split(","));
+      }
     }
   }
 
@@ -129,9 +134,8 @@ class _CleaningScheduleFormPageState extends State<CleaningScheduleFormPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                /// 🔹 BAÑO
                 DropdownButtonFormField<int>(
-                  value: selectedBathroomId,
+                  initialValue: selectedBathroomId,
                   decoration: const InputDecoration(
                     labelText: "Selecciona baño",
                   ),
@@ -150,7 +154,7 @@ class _CleaningScheduleFormPageState extends State<CleaningScheduleFormPage> {
 
                 /// 🔹 USUARIO
                 DropdownButtonFormField<int>(
-                  value: selectedUserId,
+                  initialValue: selectedUserId,
                   decoration: const InputDecoration(
                     labelText: "Usuario responsable",
                   ),
@@ -162,7 +166,6 @@ class _CleaningScheduleFormPageState extends State<CleaningScheduleFormPage> {
 
                 const SizedBox(height: 16),
 
-                /// 🔹 FECHA INICIO
                 TextFormField(
                   readOnly: true,
                   decoration: const InputDecoration(
@@ -189,7 +192,6 @@ class _CleaningScheduleFormPageState extends State<CleaningScheduleFormPage> {
 
                 const SizedBox(height: 16),
 
-                /// 🔹 FECHA FIN
                 TextFormField(
                   readOnly: true,
                   decoration: const InputDecoration(
@@ -216,9 +218,10 @@ class _CleaningScheduleFormPageState extends State<CleaningScheduleFormPage> {
 
                 const SizedBox(height: 16),
 
-                /// 🔹 FRECUENCIA
                 DropdownButtonFormField<String>(
-                  initialValue: frequencies.contains(frequency) ? frequency : null,
+                  initialValue: frequencies.contains(frequency)
+                      ? frequency
+                      : null,
                   decoration: const InputDecoration(labelText: "Frecuencia"),
                   items: frequencies
                       .map((f) => DropdownMenuItem(value: f, child: Text(f)))
@@ -235,7 +238,6 @@ class _CleaningScheduleFormPageState extends State<CleaningScheduleFormPage> {
 
                 const SizedBox(height: 16),
 
-                /// 🔹 DÍAS
                 if (isWeekly) ...[
                   const Text("Días de la semana"),
                   Wrap(
@@ -258,7 +260,6 @@ class _CleaningScheduleFormPageState extends State<CleaningScheduleFormPage> {
                   const SizedBox(height: 16),
                 ],
 
-                /// 🔹 HORAS
                 Row(
                   children: [
                     Expanded(
@@ -286,7 +287,6 @@ class _CleaningScheduleFormPageState extends State<CleaningScheduleFormPage> {
 
                 const SizedBox(height: 24),
 
-                /// 🔥 BOTÓN
                 ElevatedButton(
                   onPressed: () async {
                     final provider = Provider.of<CleaningScheduleProvider>(

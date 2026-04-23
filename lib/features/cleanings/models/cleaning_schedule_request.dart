@@ -5,8 +5,8 @@ class CleaningScheduleRequest {
   final int userId;
   final String startDate; // YYYY-MM-DD
   final String endDate;
-  final CleaningFrequency frequency; // DAILY, WEEKLY,
-  final String? daysOfWeek; // MO,TU,...
+  final CleaningFrequency frequency; // DIARIO, SEMANAL,
+  final String? daysOfWeek; // LUNES,MARTES,MIERCOLES,JUEVES,VIERNES,SABADO,DOMINGO
   final String startTime; // HH:mm:ss
   final String endTime;
 
