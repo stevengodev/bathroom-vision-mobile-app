@@ -32,7 +32,7 @@ class _CleaningScheduleFormPageState extends State<CleaningScheduleFormPage> {
   TimeOfDay? endTime;
 
   final List<String> frequencies = ['DIARIO', 'SEMANAL'];
-  final List<String> daysOfWeek = ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU'];
+  final List<String> daysOfWeek = ['LU', 'MA', 'MI', 'JU', 'VI', 'SA', 'DO'];
   final Set<String> selectedDays = {};
 
   String formatDate(DateTime date) {
@@ -57,8 +57,10 @@ class _CleaningScheduleFormPageState extends State<CleaningScheduleFormPage> {
 
     Future.microtask(() {
       final userProvider = Provider.of<UserProvider>(context, listen: false);
-      final bathroomProvider =
-          Provider.of<BathroomProvider>(context, listen: false);
+      final bathroomProvider = Provider.of<BathroomProvider>(
+        context,
+        listen: false,
+      );
 
       userProvider.loadUsersByRole(Role.CLEANER);
       bathroomProvider.loadAllBathrooms();
@@ -115,9 +117,9 @@ class _CleaningScheduleFormPageState extends State<CleaningScheduleFormPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.schedule == null
-            ? "Crear horario"
-            : "Editar horario"),
+        title: Text(
+          widget.schedule == null ? "Crear horario" : "Editar horario",
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
@@ -127,17 +129,18 @@ class _CleaningScheduleFormPageState extends State<CleaningScheduleFormPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-
                 /// 🔹 BAÑO
                 DropdownButtonFormField<int>(
                   value: selectedBathroomId,
-                  decoration:
-                      const InputDecoration(labelText: "Selecciona baño"),
+                  decoration: const InputDecoration(
+                    labelText: "Selecciona baño",
+                  ),
                   items: bathrooms.map((b) {
                     return DropdownMenuItem(
                       value: b.id,
                       child: Text(
-                          "${b.nameBlock} - Piso ${b.floor} - ${b.gender.name}"),
+                        "${b.nameBlock} - Piso ${b.floor} - ${b.gender.name}",
+                      ),
                     );
                   }).toList(),
                   onChanged: (v) => setState(() => selectedBathroomId = v),
@@ -148,13 +151,11 @@ class _CleaningScheduleFormPageState extends State<CleaningScheduleFormPage> {
                 /// 🔹 USUARIO
                 DropdownButtonFormField<int>(
                   value: selectedUserId,
-                  decoration:
-                      const InputDecoration(labelText: "Usuario responsable"),
+                  decoration: const InputDecoration(
+                    labelText: "Usuario responsable",
+                  ),
                   items: users.map((u) {
-                    return DropdownMenuItem(
-                      value: u.id,
-                      child: Text(u.name),
-                    );
+                    return DropdownMenuItem(value: u.id, child: Text(u.name));
                   }).toList(),
                   onChanged: (v) => setState(() => selectedUserId = v),
                 ),
@@ -178,8 +179,7 @@ class _CleaningScheduleFormPageState extends State<CleaningScheduleFormPage> {
                       context: context,
                       initialDate: startDate ?? DateTime.now(),
                       firstDate: DateTime.now(),
-                      lastDate:
-                          DateTime.now().add(const Duration(days: 365)),
+                      lastDate: DateTime.now().add(const Duration(days: 365)),
                     );
                     if (picked != null) {
                       setState(() => startDate = picked);
@@ -206,8 +206,7 @@ class _CleaningScheduleFormPageState extends State<CleaningScheduleFormPage> {
                       context: context,
                       initialDate: endDate ?? DateTime.now(),
                       firstDate: DateTime.now(),
-                      lastDate:
-                          DateTime.now().add(const Duration(days: 365)),
+                      lastDate: DateTime.now().add(const Duration(days: 365)),
                     );
                     if (picked != null) {
                       setState(() => endDate = picked);
@@ -219,14 +218,10 @@ class _CleaningScheduleFormPageState extends State<CleaningScheduleFormPage> {
 
                 /// 🔹 FRECUENCIA
                 DropdownButtonFormField<String>(
-                  value: frequencies.contains(frequency)
-                      ? frequency
-                      : null,
-                  decoration:
-                      const InputDecoration(labelText: "Frecuencia"),
+                  initialValue: frequencies.contains(frequency) ? frequency : null,
+                  decoration: const InputDecoration(labelText: "Frecuencia"),
                   items: frequencies
-                      .map((f) =>
-                          DropdownMenuItem(value: f, child: Text(f)))
+                      .map((f) => DropdownMenuItem(value: f, child: Text(f)))
                       .toList(),
                   onChanged: (v) {
                     setState(() {
@@ -268,17 +263,21 @@ class _CleaningScheduleFormPageState extends State<CleaningScheduleFormPage> {
                   children: [
                     Expanded(
                       child: ListTile(
-                        title: Text(startTime == null
-                            ? "Hora inicio"
-                            : startTime!.format(context)),
+                        title: Text(
+                          startTime == null
+                              ? "Hora inicio"
+                              : startTime!.format(context),
+                        ),
                         onTap: () => pickTime(context, true),
                       ),
                     ),
                     Expanded(
                       child: ListTile(
-                        title: Text(endTime == null
-                            ? "Hora fin"
-                            : endTime!.format(context)),
+                        title: Text(
+                          endTime == null
+                              ? "Hora fin"
+                              : endTime!.format(context),
+                        ),
                         onTap: () => pickTime(context, false),
                       ),
                     ),
@@ -290,8 +289,7 @@ class _CleaningScheduleFormPageState extends State<CleaningScheduleFormPage> {
                 /// 🔥 BOTÓN
                 ElevatedButton(
                   onPressed: () async {
-                    final provider =
-                        Provider.of<CleaningScheduleProvider>(
+                    final provider = Provider.of<CleaningScheduleProvider>(
                       context,
                       listen: false,
                     );
@@ -301,10 +299,10 @@ class _CleaningScheduleFormPageState extends State<CleaningScheduleFormPage> {
                       userId: selectedUserId!,
                       startDate: formatDate(startDate!),
                       endDate: formatDate(endDate!),
-                      frequency: CleaningFrequency.values
-                          .byName(frequency!),
-                      daysOfWeek:
-                          frequency == 'SEMANAL' ? formatDays() : null,
+                      frequency: CleaningFrequency.values.byName(frequency!),
+                      daysOfWeek: frequency == 'SEMANAL'
+                          ? formatDays()
+                          : 'LU,MA,MI,JU,VI,SA,DO',
                       startTime: formatTime(startTime!),
                       endTime: formatTime(endTime!),
                     );
@@ -312,23 +310,22 @@ class _CleaningScheduleFormPageState extends State<CleaningScheduleFormPage> {
                     if (widget.schedule == null) {
                       await provider.create(request);
                     } else {
-                      await provider.update(
-                          widget.schedule!.id, request);
+                      await provider.update(widget.schedule!.id, request);
                     }
 
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: Text(widget.schedule == null
-                            ? "Creado correctamente"
-                            : "Actualizado correctamente"),
+                        content: Text(
+                          widget.schedule == null
+                              ? "Creado correctamente"
+                              : "Actualizado correctamente",
+                        ),
                       ),
                     );
 
                     Navigator.pop(context);
                   },
-                  child: Text(widget.schedule == null
-                      ? "Crear"
-                      : "Actualizar"),
+                  child: Text(widget.schedule == null ? "Crear" : "Actualizar"),
                 ),
               ],
             ),

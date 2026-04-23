@@ -19,7 +19,7 @@ class _RegisterPageState extends State<RegisterPage> {
   final _formKey = GlobalKey<FormState>();
 
  
-  String role = "CLEANER";
+  String defaultRole = "USER";
 
   @override
   void dispose() {
@@ -38,7 +38,7 @@ class _RegisterPageState extends State<RegisterPage> {
       _nameController.text.trim(),
       _emailController.text.trim(),
       _passwordController.text,
-      role, 
+      defaultRole,
     );
 
     if (mounted && authProvider.isAuthenticated) {
@@ -150,32 +150,6 @@ class _RegisterPageState extends State<RegisterPage> {
                 ),
 
                 const SizedBox(height: 15),
-
-               
-                DropdownButtonFormField<String>(
-                  value: role,
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                    hintText: "Selecciona rol",
-                  ),
-                  items: const [
-                    DropdownMenuItem(
-                      value: "CLEANER",
-                      child: Text("Cleaner"),
-                    ),
-                    DropdownMenuItem(
-                      value: "MAINTAINER",
-                      child: Text("Maintainer"),
-                    ),
-                  ],
-                  onChanged: (value) {
-                    setState(() {
-                      role = value!;
-                    });
-                  },
-                ),
-
-                const SizedBox(height: 20),
 
                 SizedBox(
                   width: double.infinity,

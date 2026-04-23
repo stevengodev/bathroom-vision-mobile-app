@@ -72,4 +72,39 @@ class CleaningScheduleProvider extends ChangeNotifier {
       error = "Error inesperado";
     }
   }
+
+  Future<void> loadScheduleById(int id) async {
+    loading = true;
+    error = null;
+    notifyListeners();
+
+    try {
+      selectedSchedule = await repository.getById(id);
+    } on ApiException catch (e) {
+      error = e.message;
+    } catch (e) {
+      error = "Error inesperado";
+    }
+
+    loading = false;
+    notifyListeners();
+  }
+
+  Future<void> loadMySchedules() async {
+    loading = true;
+    error = null;
+    notifyListeners();
+
+    try {
+      schedules = await repository.getMySchedules();
+    } on ApiException catch (e) {
+      error = e.message;
+    } catch (e) {
+      error = "Error inesperado";
+    }
+
+    loading = false;
+    notifyListeners();
+  }
+
 }

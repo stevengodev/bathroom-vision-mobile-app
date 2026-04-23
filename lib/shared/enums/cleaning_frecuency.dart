@@ -1,10 +1,10 @@
 enum CleaningFrequency {
-  DIARO,
+  DIARIO,
   SEMANAL;
 
   String toDisplayString() {
     switch (this) {
-      case CleaningFrequency.DIARO:
+      case CleaningFrequency.DIARIO:
         return 'Diario';
       case CleaningFrequency.SEMANAL:
         return 'Semanal';
