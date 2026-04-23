@@ -1,8 +1,8 @@
+import 'package:bathroom_vision/features/auth/models/user_request.dart';
+import 'package:bathroom_vision/features/auth/models/user_response.dart';
+import 'package:bathroom_vision/shared/enums/role.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../../shared/enums/role.dart';
-import '../models/user_response.dart';
-import '../models/user_request.dart';
 import 'user_provider.dart';
 
 class RegisterUser extends StatefulWidget {
@@ -21,9 +21,13 @@ class _RegisterUserState extends State<RegisterUser> {
   late TextEditingController emailController;
   late TextEditingController passwordController;
 
+  late TextEditingController newPasswordController;
+  late TextEditingController confirmPasswordController;
+
   Role? selectedRole;
 
   bool obscurePassword = true;
+  bool resetPassword = false;
 
   bool get isEdit => widget.user != null;
 
@@ -31,19 +35,15 @@ class _RegisterUserState extends State<RegisterUser> {
   void initState() {
     super.initState();
 
-    nameController =
-        TextEditingController(text: widget.user?.name ?? '');
-    emailController =
-        TextEditingController(text: widget.user?.email ?? '');
+    nameController = TextEditingController(text: widget.user?.name ?? '');
+    emailController = TextEditingController(text: widget.user?.email ?? '');
+    passwordController = TextEditingController();
 
-    passwordController = TextEditingController(
-      text: isEdit ? '********' : '',
-    );
+    newPasswordController = TextEditingController();
+    confirmPasswordController = TextEditingController();
 
     selectedRole = widget.user != null
-        ? Role.values.firstWhere(
-            (r) => r.name == widget.user!.role,
-          )
+        ? Role.values.firstWhere((r) => r.name == widget.user!.role)
         : null;
   }
 
@@ -51,69 +51,50 @@ class _RegisterUserState extends State<RegisterUser> {
   Widget build(BuildContext context) {
     final provider = context.watch<UserProvider>();
 
-    return SingleChildScrollView(
-      child: Form(
-        key: _formKey,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              isEdit ? 'Editar Usuario' : 'Registrar Usuario',
-              style: const TextStyle(
-                  fontSize: 18, fontWeight: FontWeight.bold),
-            ),
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(isEdit ? 'Editar Usuario' : 'Nuevo Usuario'),
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            children: [
 
-            const SizedBox(height: 16),
-
-            TextFormField(
-              controller: nameController,
-              decoration: const InputDecoration(
-                labelText: 'Nombre',
-                border: OutlineInputBorder(),
+              TextFormField(
+                controller: nameController,
+                decoration: const InputDecoration(
+                  labelText: 'Nombre',
+                  border: OutlineInputBorder(),
+                ),
+                validator: (v) => v!.isEmpty ? 'Ingrese nombre' : null,
               ),
-              validator: (value) =>
-                  value == null || value.isEmpty
-                      ? 'Ingrese nombre'
-                      : null,
-            ),
 
-            const SizedBox(height: 12),
+              const SizedBox(height: 12),
 
-            TextFormField(
-              controller: emailController,
-              decoration: const InputDecoration(
-                labelText: 'Email',
-                border: OutlineInputBorder(),
+              TextFormField(
+                controller: emailController,
+                decoration: const InputDecoration(
+                  labelText: 'Email',
+                  border: OutlineInputBorder(),
+                ),
+                validator: (v) => v!.isEmpty ? 'Ingrese email' : null,
               ),
-              validator: (value) =>
-                  value == null || value.isEmpty
-                      ? 'Ingrese email'
-                      : null,
-            ),
 
-            const SizedBox(height: 12),
+              const SizedBox(height: 12),
 
-            Column(
-              children: [
+              if (!isEdit) ...[
                 TextFormField(
                   controller: passwordController,
                   obscureText: obscurePassword,
-                  readOnly: isEdit, 
                   decoration: InputDecoration(
                     labelText: 'Contraseña',
                     border: const OutlineInputBorder(),
-
                     suffixIcon: IconButton(
-                      icon: Icon(
-                          isEdit
-                              ? (obscurePassword
-                                  ? Icons.visibility_off
-                                  : Icons.visibility)
-                              : (obscurePassword
-                                  ? Icons.visibility
-                                  : Icons.visibility_off),
-                          color: isEdit ? Colors.grey : null,
-                        ),
+                      icon: Icon(obscurePassword
+                          ? Icons.visibility
+                          : Icons.visibility_off),
                       onPressed: () {
                         setState(() {
                           obscurePassword = !obscurePassword;
@@ -121,111 +102,139 @@ class _RegisterUserState extends State<RegisterUser> {
                       },
                     ),
                   ),
-                  validator: (value) {
-                    if (!isEdit) {
-                      if (value == null || value.length < 6) {
-                        return 'Mínimo 6 caracteres';
-                      }
-                    }
-                    return null;
-                  },
+                  validator: (v) =>
+                      v!.length < 6 ? 'Mínimo 6 caracteres' : null,
+                ),
+              ] else ...[
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.grey),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: const Text(
+                    '****************',
+                    style: TextStyle(color: Colors.grey),
+                  ),
                 ),
 
-                const SizedBox(height: 12),
+                const SizedBox(height: 8),
 
-              ],
-            ),
+                TextButton.icon(
+                  onPressed: () {
+                    setState(() {
+                      resetPassword = !resetPassword;
+                    });
+                  },
+                  icon: const Icon(Icons.lock_reset),
+                  label: Text(resetPassword
+                      ? 'Cancelar cambio'
+                      : 'Restablecer contraseña'),
+                ),
 
-            DropdownButtonFormField<Role>(
-              value: selectedRole,
-              decoration: const InputDecoration(
-                labelText: 'Rol',
-                border: OutlineInputBorder(),
-              ),
-              items: Role.values
-                  .where((role) => role != Role.ADMIN) 
-                  .map((role) {
-                return DropdownMenuItem(
-                  value: role,
-                  child: Text(role.displayName),
-                );
-              }).toList(),
-              onChanged: (value) {
-                setState(() {
-                  selectedRole = value;
-                });
-              },
-              validator: (value) =>
-                  value == null ? 'Seleccione un rol' : null,
-            ),
-
-            const SizedBox(height: 16),
-
-            provider.loading
-                ? const CircularProgressIndicator()
-                : ElevatedButton(
-                    onPressed: () async {
-                      if (_formKey.currentState!.validate()) {
-                        final name = nameController.text;
-                        final email = emailController.text;
-                        final role = selectedRole!;
-
-                        try {
-                          if (isEdit) {
-                            
-                            final request = UserRequest(
-                              name: name,
-                              email: email,
-                              password: null, 
-                              role: role,
-                            );
-
-                            await context
-                                .read<UserProvider>()
-                                .updateUser(
-                                  id: widget.user!.id,
-                                  request: request,
-                                );
-                          } else {
-                            
-                            final password =
-                                passwordController.text;
-
-                            await context
-                                .read<UserProvider>()
-                                .registerUser(
-                                  name,
-                                  email,
-                                  password,
-                                  role.name,
-                                );
-                          }
-
-                          Navigator.pop(context);
-
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(isEdit
-                                  ? 'Usuario actualizado'
-                                  : 'Usuario creado correctamente'),
-                            ),
-                          );
-                        } catch (e) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('Error: $e'),
-                            ),
-                          );
-                        }
+                if (resetPassword) ...[
+                  TextFormField(
+                    controller: newPasswordController,
+                    obscureText: true,
+                    decoration: const InputDecoration(
+                      labelText: 'Nueva contraseña',
+                      border: OutlineInputBorder(),
+                    ),
+                    validator: (v) {
+                      if (resetPassword && v!.length < 6) {
+                        return 'Mínimo 6 caracteres';
                       }
+                      return null;
                     },
-                    child: Text(isEdit ? 'Actualizar' : 'Guardar'),
                   ),
+                  const SizedBox(height: 10),
+                  TextFormField(
+                    controller: confirmPasswordController,
+                    obscureText: true,
+                    decoration: const InputDecoration(
+                      labelText: 'Confirmar contraseña',
+                      border: OutlineInputBorder(),
+                    ),
+                    validator: (v) {
+                      if (resetPassword &&
+                          v != newPasswordController.text) {
+                        return 'No coinciden';
+                      }
+                      return null;
+                    },
+                  ),
+                ]
+              ],
 
-            const SizedBox(height: 20),
-          ],
+              const SizedBox(height: 12),
+
+              DropdownButtonFormField<Role>(
+                initialValue: selectedRole,
+                decoration: const InputDecoration(
+                  labelText: 'Rol',
+                  border: OutlineInputBorder(),
+                ),
+                items: Role.values
+                    .where((r) => r != Role.ADMIN)
+                    .map((role) => DropdownMenuItem(
+                          value: role,
+                          child: Text(role.displayName),
+                        ))
+                    .toList(),
+                onChanged: (v) => setState(() => selectedRole = v),
+                validator: (v) => v == null ? 'Seleccione rol' : null,
+              ),
+
+              const SizedBox(height: 20),
+
+              provider.loading
+                  ? const CircularProgressIndicator()
+                  : SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: _submit,
+                        child: Text(isEdit ? 'Actualizar' : 'Guardar'),
+                      ),
+                    ),
+            ],
+          ),
         ),
       ),
     );
+  }
+
+  Future<void> _submit() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    final provider = context.read<UserProvider>();
+
+    try {
+      if (isEdit) {
+        await provider.updateUser(
+          id: widget.user!.id,
+          request: UserRequest(
+            name: nameController.text,
+            email: emailController.text,
+            password:
+                resetPassword ? newPasswordController.text : null,
+            role: selectedRole!,
+          ),
+        );
+      } else {
+        await provider.registerUser(
+          nameController.text,
+          emailController.text,
+          passwordController.text,
+          selectedRole!.name,
+        );
+      }
+
+      Navigator.pop(context, true);
+
+    } catch (e) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Error: $e')));
+    }
   }
 }

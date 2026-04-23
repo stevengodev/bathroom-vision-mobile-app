@@ -1,9 +1,10 @@
+import 'package:bathroom_vision/features/auth/presentation/register_user.dart';
 import 'package:bathroom_vision/features/auth/presentation/user_list.dart';
 import 'package:bathroom_vision/features/auth/presentation/user_provider.dart';
-import 'package:bathroom_vision/features/auth/presentation/register_user.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../shared/enums/role.dart';
+import '../models/user_response.dart';
 
 class ManageUserPage extends StatefulWidget {
   const ManageUserPage({super.key});
@@ -13,19 +14,8 @@ class ManageUserPage extends StatefulWidget {
 }
 
 class _ManageUserPageState extends State<ManageUserPage> {
-
   final TextEditingController searchController = TextEditingController();
   String searchText = '';
-
-  String normalize(String text) {
-    return text
-        .toLowerCase()
-        .replaceAll('á', 'a')
-        .replaceAll('é', 'e')
-        .replaceAll('í', 'i')
-        .replaceAll('ó', 'o')
-        .replaceAll('ú', 'u');
-  }
 
   @override
   void initState() {
@@ -51,20 +41,56 @@ class _ManageUserPageState extends State<ManageUserPage> {
     super.dispose();
   }
 
+  String normalize(String text) {
+    return text
+        .toLowerCase()
+        .replaceAll('á', 'a')
+        .replaceAll('é', 'e')
+        .replaceAll('í', 'i')
+        .replaceAll('ó', 'o')
+        .replaceAll('ú', 'u');
+  }
+
+  Future<void> _goToCreateUser() async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const RegisterUser()),
+    );
+
+    if (result == true) {
+      _reloadUsers();
+    }
+  }
+
+  Future<void> _goToEditUser(UserResponse user) async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => RegisterUser(user: user)),
+    );
+
+    if (result == true) {
+      _reloadUsers();
+    }
+  }
+
+  void _reloadUsers() {
+    context.read<UserProvider>().loadUsersByRoles([
+      Role.MAINTAINER,
+      Role.CLEANER,
+    ]);
+  }
+
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<UserProvider>();
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Lista de Usuarios"),
-      ),
+      appBar: AppBar(title: const Text("Lista de Usuarios")),
 
       body: Padding(
         padding: const EdgeInsets.all(12),
         child: Column(
           children: [
-
             TextField(
               controller: searchController,
               decoration: InputDecoration(
@@ -73,9 +99,7 @@ class _ManageUserPageState extends State<ManageUserPage> {
                 suffixIcon: searchText.isNotEmpty
                     ? IconButton(
                         icon: const Icon(Icons.clear),
-                        onPressed: () {
-                          searchController.clear();
-                        },
+                        onPressed: () => searchController.clear(),
                       )
                     : null,
                 border: OutlineInputBorder(
@@ -89,42 +113,37 @@ class _ManageUserPageState extends State<ManageUserPage> {
             Expanded(
               child: Builder(
                 builder: (_) {
-
                   if (provider.loading) {
                     return const Center(child: CircularProgressIndicator());
                   }
 
                   if (provider.error != null) {
-                    return Center(
-                      child: Text("Error: ${provider.error}"),
-                    );
+                    return Center(child: Text("Error: ${provider.error}"));
                   }
 
                   if (provider.users == null || provider.users!.isEmpty) {
-                    return const Center(
-                      child: Text("No hay usuarios"),
-                    );
+                    return const Center(child: Text("No hay usuarios"));
                   }
 
                   final query = normalize(searchText);
 
-                    final filteredUsers = provider.users!.where((user) {
-                      final name = normalize(user.name);
-                      final email = normalize(user.email);
+                  final filteredUsers = provider.users!.where((user) {
+                    final name = normalize(user.name);
+                    final email = normalize(user.email);
 
-                      final role = normalize(
-                        Role.values
-                            .firstWhere(
-                              (r) => r.name == user.role,
-                              orElse: () => Role.CLEANER,
-                            )
-                            .displayName,
-                      );
+                    final role = normalize(
+                      Role.values
+                          .firstWhere(
+                            (r) => r.name == user.role,
+                            orElse: () => Role.CLEANER,
+                          )
+                          .displayName,
+                    );
 
-                      return name.contains(query) ||
-                          email.contains(query) ||
-                          role.contains(query);
-                    }).toList();
+                    return name.contains(query) ||
+                        email.contains(query) ||
+                        role.contains(query);
+                  }).toList();
 
                   if (filteredUsers.isEmpty) {
                     return const Center(
@@ -132,7 +151,7 @@ class _ManageUserPageState extends State<ManageUserPage> {
                     );
                   }
 
-                  return UserList(users: filteredUsers);
+                  return UserList(users: filteredUsers, onTap: _goToEditUser);
                 },
               ),
             ),
@@ -141,49 +160,9 @@ class _ManageUserPageState extends State<ManageUserPage> {
       ),
 
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          _showAddUserModal(context);
-        },
+        onPressed: _goToCreateUser,
         child: const Icon(Icons.add),
       ),
-
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-    );
-  }
-
-  void _showAddUserModal(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      builder: (context) {
-        return Padding(
-          padding: EdgeInsets.only(
-            left: 16,
-            right: 16,
-            top: 16,
-            bottom: MediaQuery.of(context).viewInsets.bottom,
-          ),
-          child: const RegisterUser(),
-        );
-      },
-    );
-  }
-
-  void _showEditUserModal(BuildContext context, user) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      builder: (context) {
-        return Padding(
-          padding: EdgeInsets.only(
-            left: 16,
-            right: 16,
-            top: 16,
-            bottom: MediaQuery.of(context).viewInsets.bottom,
-          ),
-          child: RegisterUser(user: user),
-        );
-      },
     );
   }
 }

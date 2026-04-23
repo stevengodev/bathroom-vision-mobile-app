@@ -4,15 +4,25 @@ import 'user_card.dart';
 
 class UserList extends StatelessWidget {
   final List<UserResponse> users;
+  final Function(UserResponse user) onTap; // 🔥 nuevo
 
-  const UserList({super.key, required this.users});
+  const UserList({
+    super.key,
+    required this.users,
+    required this.onTap, // 🔥 requerido
+  });
 
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
       itemCount: users.length,
       itemBuilder: (context, index) {
-        return UserCard(user: users[index]);
+        final user = users[index];
+
+        return UserCard(
+          user: user,
+          onTap: () => onTap(user), // 🔥 conexión
+        );
       },
     );
   }

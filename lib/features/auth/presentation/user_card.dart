@@ -1,12 +1,16 @@
 import 'package:bathroom_vision/features/auth/models/user_response.dart';
-import 'package:bathroom_vision/features/auth/presentation/register_user.dart';
 import 'package:flutter/material.dart';
 import '../../../shared/enums/role.dart';
 
 class UserCard extends StatelessWidget {
   final UserResponse user;
+  final VoidCallback? onTap;
 
-  const UserCard({super.key, required this.user});
+  const UserCard({
+    super.key,
+    required this.user,
+    this.onTap,
+  });
 
   Role _getRoleEnum(String role) {
     return Role.values.firstWhere(
@@ -31,90 +35,82 @@ class UserCard extends StatelessWidget {
     final roleEnum = _getRoleEnum(user.role);
     final roleColor = _getRoleColor(roleEnum);
 
-    return Card(
-      elevation: 3,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
-      margin: const EdgeInsets.symmetric(vertical: 8),
-      child: Padding(
-        padding: const EdgeInsets.all(14),
-        child: Row(
-          children: [
-            
-            CircleAvatar(
-              radius: 24,
-              child: Text(
-                user.name.isNotEmpty
-                    ? user.name[0].toUpperCase()
-                    : "?",
+    return InkWell(
+      onTap: onTap, // 🔥 navegación aquí
+      borderRadius: BorderRadius.circular(16),
+
+      child: Card(
+        elevation: 3,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        margin: const EdgeInsets.symmetric(vertical: 8),
+
+        child: Padding(
+          padding: const EdgeInsets.all(14),
+          child: Row(
+            children: [
+
+              /// 🔹 Avatar
+              CircleAvatar(
+                radius: 24,
+                child: Text(
+                  user.name.isNotEmpty
+                      ? user.name[0].toUpperCase()
+                      : "?",
+                ),
               ),
-            ),
 
-            const SizedBox(width: 12),
+              const SizedBox(width: 12),
 
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    user.name,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  Text(
-                    user.email,
-                    style: const TextStyle(color: Colors.grey),
-                  ),
+              /// 🔹 Info
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
 
-                  const SizedBox(height: 6),
-
-                  
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: roleColor,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text(
-                      roleEnum.displayName, // 🔥 AQUÍ EL CAMBIO
+                    Text(
+                      user.name,
                       style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
-                  ),
-                ],
-              ),
-            ),
 
-            
-            IconButton(
-              icon: const Icon(Icons.edit),
-              onPressed: () {
-                showModalBottomSheet(
-                  context: context,
-                  isScrollControlled: true,
-                  builder: (context) {
-                    return Padding(
-                      padding: EdgeInsets.only(
-                        left: 16,
-                        right: 16,
-                        top: 16,
-                        bottom:
-                            MediaQuery.of(context).viewInsets.bottom,
+                    Text(
+                      user.email,
+                      style: const TextStyle(color: Colors.grey),
+                    ),
+
+                    const SizedBox(height: 6),
+
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 4,
                       ),
-                      child: RegisterUser(user: user),
-                    );
-                  },
-                );
-              },
-            ),
-          ],
+                      decoration: BoxDecoration(
+                        color: roleColor,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        roleEnum.displayName,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              /// 🔹 Indicador visual (no botón)
+              const Icon(
+                Icons.chevron_right,
+                color: Colors.grey,
+              ),
+            ],
+          ),
         ),
       ),
     );
