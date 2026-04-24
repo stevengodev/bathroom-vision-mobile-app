@@ -5,6 +5,13 @@ import 'package:bathroom_vision/features/cleanings/presentation/cleaning_schedul
 import 'package:bathroom_vision/features/cleanings/models/cleaning_schedule_response.dart';
 import 'cleaning_schedule_form_page.dart';
 
+import 'package:intl/intl.dart';
+
+String formatHour(String time) {
+  final parsed = DateFormat("HH:mm:ss").parse(time);
+  return DateFormat("hh:mm a").format(parsed);
+}
+
 class CleaningScheduleListPage extends StatefulWidget {
   const CleaningScheduleListPage({super.key});
 
@@ -33,7 +40,7 @@ class _CleaningScheduleListPageState extends State<CleaningScheduleListPage> {
       lastDate: endDate,
       builder: (context, child) => Theme(
         data: Theme.of(context).copyWith(
-          colorScheme: const ColorScheme.light(primary: Colors.indigo),
+          colorScheme: const ColorScheme.light(primary: Color.fromARGB(255, 27, 145, 11)),
         ),
         child: child!,
       ),
@@ -49,7 +56,7 @@ class _CleaningScheduleListPageState extends State<CleaningScheduleListPage> {
       lastDate: DateTime(2030),
       builder: (context, child) => Theme(
         data: Theme.of(context).copyWith(
-          colorScheme: const ColorScheme.light(primary: Colors.indigo),
+          colorScheme: const ColorScheme.light(primary: Color.fromARGB(255, 27, 145, 11)),
         ),
         child: child!,
       ),
@@ -62,15 +69,33 @@ class _CleaningScheduleListPageState extends State<CleaningScheduleListPage> {
     final provider = context.watch<CleaningScheduleProvider>();
     final schedules = provider.schedules;
 
+    final blocks = schedules
+      .map((s) => s.bathroom.nameBlock.trim())
+      .toSet()
+      .toList()
+    ..sort();
+
     final filtered = schedules.where((s) {
-      final matchBlock = selectedBlock == null || s.bathroom.nameBlock == selectedBlock;
-      final sStart = DateTime.parse(s.startDate);
-      final sEnd = DateTime.parse(s.endDate);
-      final matchDate = sStart.isBefore(endDate.add(const Duration(days: 1))) &&
-          sEnd.isAfter(startDate.subtract(const Duration(days: 1)));
+      // FILTRO POR BLOQUE
+      final matchBlock = selectedBlock == null ||
+          s.bathroom.nameBlock.trim() == selectedBlock;
+
+      // FECHAS
+      final scheduleStart = DateTime.parse(s.startDate);
+      final scheduleEnd = DateTime.parse(s.endDate);
+
+      // FILTRO POR RANGO (intersección de fechas)
+      final matchDate =
+          scheduleStart.isBefore(endDate.add(const Duration(days: 1))) &&
+          scheduleEnd.isAfter(startDate.subtract(const Duration(days: 1)));
+
       return matchBlock && matchDate;
     }).toList()
-      ..sort((a, b) => a.startTime.compareTo(b.startTime));
+      ..sort((a, b) {
+        final aTime = DateFormat("HH:mm:ss").parse(a.startTime);
+        final bTime = DateFormat("HH:mm:ss").parse(b.startTime);
+        return aTime.compareTo(bTime);
+      });
 
     return Scaffold(
       backgroundColor: const Color(0xFFF1F5F9),
@@ -80,7 +105,7 @@ class _CleaningScheduleListPageState extends State<CleaningScheduleListPage> {
         width: 64,
         margin: const EdgeInsets.only(bottom: 10),
         child: FloatingActionButton(
-          backgroundColor: Colors.indigo[600],
+          backgroundColor: const Color.fromARGB(255, 12, 90, 6),
           elevation: 10,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(22),
@@ -99,7 +124,7 @@ class _CleaningScheduleListPageState extends State<CleaningScheduleListPage> {
                   collapsedHeight: 100,
                   pinned: true,
                   stretch: true,
-                  backgroundColor: Colors.indigo[700],
+                  backgroundColor: const Color.fromARGB(255, 12, 90, 6),
                   shape: const RoundedRectangleBorder(
                     borderRadius: BorderRadius.vertical(bottom: Radius.circular(40)),
                   ),
@@ -114,16 +139,8 @@ class _CleaningScheduleListPageState extends State<CleaningScheduleListPage> {
                           children: [
                             // Título
                             Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Container(
-                                  padding: const EdgeInsets.all(8),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white.withOpacity(0.2),
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  child: const Icon(Icons.calendar_month, color: Colors.white),
-                                ),
-                                const SizedBox(width: 12),
                                 const Text(
                                   "Horarios",
                                   style: TextStyle(
@@ -144,25 +161,34 @@ class _CleaningScheduleListPageState extends State<CleaningScheduleListPage> {
                                 border: Border.all(color: Colors.white24),
                               ),
                               child: DropdownButtonHideUnderline(
-                                child: DropdownButton<String?>(
-                                  value: selectedBlock,
-                                  dropdownColor: Colors.grey[800],
-                                  icon: const Icon(Icons.expand_more, color: Colors.white60),
-                                  isExpanded: true,
-                                  hint: const Text(
-                                    "Todos los Bloques",
-                                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                                  ),
-                                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                                  items: [null, "A", "B", "C", "D", "E"]
-                                      .map((b) => DropdownMenuItem(
-                                            value: b,
-                                            child: Text(b == null ? "Todos los Bloques" : "Bloque $b"),
-                                          ))
-                                      .toList(),
-                                  onChanged: (v) => setState(() => selectedBlock = v),
+                              child: DropdownButton<String?>(
+                                value: selectedBlock,
+                                dropdownColor: const Color.fromARGB(255, 255, 255, 255),
+                                icon: const Icon(Icons.expand_more, color: Colors.white60),
+                                isExpanded: true,
+                                hint: const Text(
+                                  "Todos los Bloques",
+                                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                                 ),
+                                style: const TextStyle(
+                                  color: Color.fromARGB(255, 0, 0, 0),
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                items: [
+                                  const DropdownMenuItem<String?>(
+                                    value: null,
+                                    child: Text("Todos los Bloques"),
+                                  ),
+                                  ...blocks.map(
+                                    (b) => DropdownMenuItem<String?>(
+                                      value: b,
+                                      child: Text(" $b"),
+                                    ),
+                                  ),
+                                ],
+                                onChanged: (v) => setState(() => selectedBlock = v),
                               ),
+                            ),
                             ),
                             const SizedBox(height: 12),
 
@@ -183,13 +209,13 @@ class _CleaningScheduleListPageState extends State<CleaningScheduleListPage> {
                                       Text(
                                         "FILTRO DE RANGO",
                                         style: TextStyle(
-                                          color: Colors.indigo[200],
+                                          color: const Color.fromARGB(255, 247, 247, 247),
                                           fontSize: 10,
                                           fontWeight: FontWeight.w900,
                                           letterSpacing: 1.2,
                                         ),
                                       ),
-                                      const Icon(Icons.date_range, size: 16, color: Colors.white24),
+                                      const Icon(Icons.date_range, size: 16, color: Color.fromARGB(237, 255, 255, 255)),
                                     ],
                                   ),
                                   const SizedBox(height: 10),
@@ -204,7 +230,7 @@ class _CleaningScheduleListPageState extends State<CleaningScheduleListPage> {
                                       ),
                                       const Padding(
                                         padding: EdgeInsets.symmetric(horizontal: 8),
-                                        child: Icon(Icons.arrow_forward, color: Colors.white24, size: 16),
+                                        child: Icon(Icons.arrow_forward, color: Color.fromARGB(237, 255, 255, 255), size: 16),
                                       ),
                                       Expanded(
                                         child: _dateTapField(
@@ -292,34 +318,38 @@ class _CleaningScheduleListPageState extends State<CleaningScheduleListPage> {
   }
 
   Widget _listHeader(int count) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      crossAxisAlignment: CrossAxisAlignment.end,
-      children: [
-        const Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              "Horarios Vigentes",
-              style: TextStyle(color: Color(0xFF1E293B), fontSize: 22, fontWeight: FontWeight.w900),
-            ),
-          ],
-        ),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-          decoration: BoxDecoration(
-            color: Colors.indigo[50],
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: Colors.indigo[100]!),
-          ),
-          child: Text(
-            "$count ENCONTRADOS",
-            style: TextStyle(color: Colors.indigo[600], fontSize: 10, fontWeight: FontWeight.w900),
+  return Column(
+    children: [
+      Center(
+        child: Text(
+          "Horarios Vigentes",
+          style: const TextStyle(
+            color: Color(0xFF1E293B),
+            fontSize: 22,
+            fontWeight: FontWeight.w900,
           ),
         ),
-      ],
-    );
-  }
+      ),
+      const SizedBox(height: 10),
+      Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+        decoration: BoxDecoration(
+          color: const Color.fromARGB(161, 166, 210, 158),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: const Color.fromARGB(255, 86, 154, 90)),
+        ),
+        child: Text(
+          "$count ENCONTRADOS",
+          style: const TextStyle(
+            color: Color.fromARGB(255, 12, 90, 6),
+            fontSize: 11,
+            fontWeight: FontWeight.w900,
+          ),
+        ),
+      ),
+    ],
+  );
+}
 
   Widget _scheduleCard(BuildContext context, CleaningScheduleResponse s, CleaningScheduleProvider provider) {
     final isDiario = s.frequency.name.toUpperCase() == 'DIARIO';
@@ -340,7 +370,7 @@ class _CleaningScheduleListPageState extends State<CleaningScheduleListPage> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
-                color: isDiario ? Colors.indigo[500] : Colors.deepOrangeAccent[400],
+                color: isDiario ? const Color.fromARGB(255, 12, 90, 6) : Colors.deepOrangeAccent[400],
                 borderRadius: const BorderRadius.vertical(bottom: Radius.circular(12)),
               ),
               child: Text(
@@ -359,7 +389,7 @@ class _CleaningScheduleListPageState extends State<CleaningScheduleListPage> {
                       width: 56,
                       height: 56,
                       decoration: BoxDecoration(color: Colors.indigo[50], borderRadius: BorderRadius.circular(20)),
-                      child: Icon(Icons.access_time_filled, color: Colors.indigo[600], size: 28),
+                      child: Icon(Icons.access_time_filled, color: const Color.fromARGB(255, 12, 90, 6), size: 28),
                     ),
                     const SizedBox(width: 16),
                     Expanded(
@@ -367,8 +397,12 @@ class _CleaningScheduleListPageState extends State<CleaningScheduleListPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            "${s.startTime} - ${s.endTime}",
-                            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: Color(0xFF1E293B)),
+                            "${formatHour(s.startTime)} - ${formatHour(s.endTime)}",
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w900,
+                              color: Color(0xFF1E293B),
+                            ),
                           ),
                           Row(
                             children: [
@@ -390,62 +424,8 @@ class _CleaningScheduleListPageState extends State<CleaningScheduleListPage> {
                     _actionButtons(context, s, provider),
                   ],
                 ),
-                const SizedBox(height: 20),
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF8FAFC),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: const Color(0xFFF1F5F9)),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          const Icon(Icons.location_on, size: 18, color: Colors.indigoAccent),
-                          const SizedBox(width: 8),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text("UBICACIÓN", style: TextStyle(color: Colors.black26, fontSize: 9, fontWeight: FontWeight.w900)),
-                              Text(
-                                "${s.bathroom.nameBlock} • PISO ${s.bathroom.floor}",
-                                style: const TextStyle(color: Color(0xFF334155), fontSize: 12, fontWeight: FontWeight.w900),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                      _genderBadge(s.bathroom.gender.name),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: [
-                        _dateInfo("INICIO", s.startDate),
-                        const Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 8.0),
-                          child: Icon(Icons.arrow_forward, size: 14, color: Colors.black12),
-                        ),
-                        _dateInfo("FIN", s.endDate),
-                      ],
-                    ),
-                    if (s.daysOfWeek != null)
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                        decoration: BoxDecoration(color: Colors.grey[50], borderRadius: BorderRadius.circular(8)),
-                        child: Text(
-                          s.daysOfWeek!,
-                          style: TextStyle(color: Colors.grey[700], fontSize: 10, fontWeight: FontWeight.w900),
-                        ),
-                      ),
-                  ],
-                ),
+                
+                   
               ],
             ),
           ),
@@ -455,21 +435,27 @@ class _CleaningScheduleListPageState extends State<CleaningScheduleListPage> {
   }
 
   Widget _actionButtons(BuildContext context, CleaningScheduleResponse s, CleaningScheduleProvider provider) {
-    return Row(
-      children: [
-        IconButton(
-          onPressed: () => _navigateToForm(context, provider, schedule: s),
-          icon: const Icon(Icons.edit_outlined, color: Colors.black26, size: 22),
-          visualDensity: VisualDensity.compact,
-        ),
-        IconButton(
-          onPressed: () => provider.delete(s.id).then((_) => provider.loadSchedules()),
-          icon: const Icon(Icons.delete_outline, color: Colors.redAccent, size: 22),
-          visualDensity: VisualDensity.compact,
-        ),
-      ],
-    );
-  }
+  return Row(
+    children: [
+      IconButton(
+        onPressed: () => _showDetailsDialog(context, s),
+        icon: const Icon(Icons.visibility_outlined, color: Colors.blueGrey, size: 22),
+        visualDensity: VisualDensity.compact,
+      ),
+      IconButton(
+        onPressed: () => _navigateToForm(context, provider, schedule: s),
+        icon: const Icon(Icons.edit_outlined, color: Colors.black26, size: 22),
+        visualDensity: VisualDensity.compact,
+      ),
+      IconButton(
+        onPressed: () => _confirmDelete(context, s, provider),
+        icon: const Icon(Icons.delete_outline, color: Colors.redAccent, size: 22),
+        visualDensity: VisualDensity.compact,
+      ),
+    ],
+  );
+  
+}
 
   Widget _dateInfo(String label, String date) {
     final d = DateTime.parse(date);
@@ -520,6 +506,271 @@ class _CleaningScheduleListPageState extends State<CleaningScheduleListPage> {
     );
   }
 
+  void _showDetailsDialog(BuildContext context, CleaningScheduleResponse s) {
+  showDialog(
+    context: context,
+    barrierDismissible: true,
+    builder: (context) {
+      return Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(24),
+        ),
+        elevation: 10,
+        child: Stack(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 24, 20, 20),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text(
+                    "Detalles del turno",
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+
+                  // UBICACIÓN
+                  Row(
+                    children: [
+                      const Icon(Icons.location_on, size: 20),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          "${s.bathroom.nameBlock} • Piso ${s.bathroom.floor}",
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 12),
+
+                  // FECHAS
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          const Icon(Icons.event, size: 18),
+                          const SizedBox(width: 8),
+                          const Text(
+                            "Fecha inicio",
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: Colors.black45,
+                              fontWeight: FontWeight.w900,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        s.startDate,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13,
+                        ),
+                      ),
+
+                      const SizedBox(height: 10),
+
+                      Row(
+                        children: [
+                          const Icon(Icons.event_available, size: 18),
+                          const SizedBox(width: 8),
+                          const Text(
+                            "Fecha fin",
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: Colors.black45,
+                              fontWeight: FontWeight.w900,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        s.endDate,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13,
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 12),
+
+                  // DÍAS
+                  if (s.daysOfWeek != null)
+                    Row(
+                      children: [
+                        const Icon(Icons.calendar_view_week, size: 20),
+                        const SizedBox(width: 8),
+                        Text(
+                          s.daysOfWeek!,
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ],
+                    ),
+                ],
+              ),
+            ),
+
+            // ❌ BOTÓN X (cerrar)
+            Positioned(
+              top: 8,
+              right: 8,
+              child: InkWell(
+                borderRadius: BorderRadius.circular(20),
+                onTap: () => Navigator.pop(context),
+                child: const Padding(
+                  padding: EdgeInsets.all(6),
+                  child: Icon(
+                    Icons.close,
+                    size: 20,
+                    color: Colors.black54,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    },
+  );
+}
+
+Widget _detailItem(IconData icon, String title, String value) {
+  return Padding(
+    padding: const EdgeInsets.symmetric(vertical: 6),
+    child: Row(
+      children: [
+        Icon(icon, size: 18, color: const Color.fromARGB(255, 12, 90, 6)),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title.toUpperCase(),
+                style: const TextStyle(
+                  fontSize: 10,
+                  color: Colors.black38,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+              Text(
+                value,
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF334155),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    ),
+  );
+}
+void _confirmDelete(
+  BuildContext context,
+  CleaningScheduleResponse s,
+  CleaningScheduleProvider provider,
+) {
+  showDialog(
+    context: context,
+    builder: (context) {
+      return Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.warning_amber_rounded, size: 40, color: Colors.redAccent),
+              const SizedBox(height: 10),
+
+              const Text(
+                "¿Eliminar turno?",
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+
+              const SizedBox(height: 10),
+
+              Text(
+                "Se eliminará el turno de ${formatHour(s.startTime)} - ${formatHour(s.endTime)} asignado a ${s.userName}",
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 13, color: Colors.black54),
+              ),
+
+              const SizedBox(height: 20),
+
+              Row(
+                children: [
+                  // CANCELAR
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => Navigator.pop(context),
+                      style: OutlinedButton.styleFrom(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: const Text("Cancelar"),
+                    ),
+                  ),
+
+                  const SizedBox(width: 10),
+
+                  // ELIMINAR
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        Navigator.pop(context); // cerrar modal
+
+                        await provider.delete(s.id);
+                        await provider.loadSchedules();
+
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: const Text("Turno eliminado correctamente"),
+                            backgroundColor: Colors.green,
+                            behavior: SnackBarBehavior.floating,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.redAccent,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: const Text("Eliminar"),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      );
+    },
+  );
+}
   void _navigateToForm(BuildContext context, CleaningScheduleProvider provider, {CleaningScheduleResponse? schedule}) async {
     await Navigator.push(context, MaterialPageRoute(builder: (_) => CleaningScheduleFormPage(schedule: schedule)));
     provider.loadSchedules();

@@ -23,10 +23,14 @@ import 'package:bathroom_vision/features/cleanings/data/cleaning_schedule_reposi
 import 'package:bathroom_vision/features/cleanings/presentation/cleaning_schedule_list_page.dart';
 import 'package:bathroom_vision/features/cleanings/presentation/cleaning_schedule_provider.dart';
 import 'package:bathroom_vision/features/cleanings/presentation/my_cleaning_schedules_page.dart';
+import 'package:bathroom_vision/features/maintenances/data/maintenance_api.dart';
+import 'package:bathroom_vision/features/maintenances/data/maintenance_repository.dart';
+import 'package:bathroom_vision/features/maintenances/presentation/maintenance_provider.dart';
 import 'package:bathroom_vision/features/incidents/data/incident_api.dart';
 import 'package:bathroom_vision/features/incidents/data/incident_repository.dart';
 import 'package:bathroom_vision/features/incidents/presentation/incident_provider.dart';
 import 'package:bathroom_vision/features/incidents/presentation/pending_incidents_page.dart';
+import 'package:bathroom_vision/features/maintenances/presentation/maintenance_list_page.dart';
 import 'package:bathroom_vision/shared/views/navigation_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -55,6 +59,8 @@ Future<void> main() async {
   final incidentRepository = IncidentRepository(IncidentApi(apiClient));
   final cleaningScheduleRepository =
       CleaningScheduleRepository(CleaningScheduleApi(apiClient));
+  final maintenanceRepository =
+    MaintenanceRepository(MaintenanceApi(apiClient));
 
   runApp(
     MultiProvider(
@@ -66,6 +72,9 @@ Future<void> main() async {
         ChangeNotifierProvider(create: (_) => IncidentProvider(incidentRepository)),
         ChangeNotifierProvider(
             create: (_) => CleaningScheduleProvider(cleaningScheduleRepository)),
+        ChangeNotifierProvider(
+            create: (_) => MaintenanceProvider(maintenanceRepository),
+),
       ],
       child: const MyApp(),
     ),
@@ -91,8 +100,7 @@ class MyApp extends StatelessWidget {
             const PlaceholderPage(title: 'Baños disponibles'),
         '/horarios-limpiezas': (_) => const CleaningScheduleListPage(),
         '/horarios-limpiezas/me': (_) => const WeeklySchedulePage(),
-        '/mantenimientos': (_) =>
-            const PlaceholderPage(title: 'Mantenimientos'),
+        '/mantenimientos': (_) => const MaintenanceListPage(),
         '/incidencias': (_) => const PendingIncidentsPage(),
         '/blocks': (_) => const BlocksPage(),
         '/user-profile': (_) => const UserProfilePage(),
@@ -131,4 +139,5 @@ class PlaceholderPage extends StatelessWidget {
       ),
     );
   }
+  
 }
