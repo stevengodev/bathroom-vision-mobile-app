@@ -7,8 +7,8 @@ class MaintenanceRepository {
 
   MaintenanceRepository(this.api);
 
-  Future<List<MaintenanceResponse>> getAll() {
-    return api.getAll();
+  Future<List<MaintenanceResponse>> getAll({String? status}) {
+    return api.getAll(status: status);
   }
 
   Future<List<MaintenanceResponse>> getMyMaintenances() {
@@ -33,5 +33,9 @@ class MaintenanceRepository {
 
   Future<void> delete(int id) {
     return api.delete(id);
+  }
+
+  Future<MaintenanceResponse> updateStatus(int id, String status) {
+    return api.updateStatus(id, status);
   }
 }

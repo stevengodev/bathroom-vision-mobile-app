@@ -8,19 +8,23 @@ class MaintenanceApi {
 
   MaintenanceApi(this.apiClient);
 
-  Future<List<MaintenanceResponse>> getAll() async {
-    try {
-      final response = await apiClient.dio.get("/api/maintenances"); 
+  Future<List<MaintenanceResponse>> getAll({String? status}) async {
 
-      if (response.statusCode == 200) {
-        final List data = response.data;
-        return data.map((e) => MaintenanceResponse.fromJson(e)).toList();
-      } else {
-        throw ApiException(
-          "Error al obtener mantenimientos",
-          statusCode: response.statusCode,
-        );
-      }
+    dynamic queryParameters;
+
+    if (status != null) {
+      queryParameters = {"status": status};
+    }
+
+    try {
+      final response = await apiClient.dio.get(
+        "/api/maintenances",
+        queryParameters: queryParameters,
+      );
+
+      final List data = response.data;
+
+      return data.map((e) => MaintenanceResponse.fromJson(e)).toList();
     } catch (e) {
       throw ApiException("Error al obtener mantenimientos");
     }
@@ -28,7 +32,7 @@ class MaintenanceApi {
 
   Future<List<MaintenanceResponse>> getMyMaintenances() async {
     try {
-      final response = await apiClient.dio.get("/api/maintenances/my"); 
+      final response = await apiClient.dio.get("/api/maintenances/my");
 
       if (response.statusCode == 200) {
         final List data = response.data;
@@ -47,7 +51,7 @@ class MaintenanceApi {
   Future<List<MaintenanceResponse>> getByBathroom(int bathroomId) async {
     try {
       final response = await apiClient.dio.get(
-        "/api/maintenances/bathroom/$bathroomId", 
+        "/api/maintenances/bathroom/$bathroomId",
       );
 
       if (response.statusCode == 200) {
@@ -66,9 +70,7 @@ class MaintenanceApi {
 
   Future<MaintenanceResponse> getById(int id) async {
     try {
-      final response = await apiClient.dio.get(
-        "/api/maintenances/$id", 
-      );
+      final response = await apiClient.dio.get("/api/maintenances/$id");
 
       if (response.statusCode == 200) {
         return MaintenanceResponse.fromJson(response.data);
@@ -86,7 +88,7 @@ class MaintenanceApi {
   Future<MaintenanceResponse> create(MaintenanceRequest request) async {
     try {
       final response = await apiClient.dio.post(
-        "/api/maintenances", 
+        "/api/maintenances",
         data: request.toJson(),
       );
 
@@ -106,7 +108,7 @@ class MaintenanceApi {
   Future<MaintenanceResponse> update(int id, MaintenanceRequest request) async {
     try {
       final response = await apiClient.dio.put(
-        "/api/maintenances/$id", 
+        "/api/maintenances/$id",
         data: request.toJson(),
       );
 
@@ -125,9 +127,7 @@ class MaintenanceApi {
 
   Future<void> delete(int id) async {
     try {
-      final response = await apiClient.dio.delete(
-        "/api/maintenances/$id", 
-      );
+      final response = await apiClient.dio.delete("/api/maintenances/$id");
 
       if (response.statusCode != 200 && response.statusCode != 204) {
         throw ApiException(
@@ -137,6 +137,26 @@ class MaintenanceApi {
       }
     } catch (e) {
       throw ApiException("Error al eliminar mantenimiento");
+    }
+  }
+
+  Future<MaintenanceResponse> updateStatus(int id, String status) async {
+    try {
+      final response = await apiClient.dio.put(
+        "/api/maintenances/$id/status",
+        data: {"status": status},
+      );
+
+      if (response.statusCode == 200) {
+        return MaintenanceResponse.fromJson(response.data);
+      } else {
+        throw ApiException(
+          "Error al actualizar estado del mantenimiento",
+          statusCode: response.statusCode,
+        );
+      }
+    } catch (e) {
+      throw ApiException("Error al actualizar estado del mantenimiento");
     }
   }
 }

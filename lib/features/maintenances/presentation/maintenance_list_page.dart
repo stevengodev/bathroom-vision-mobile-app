@@ -1,259 +1,527 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'package:bathroom_vision/features/maintenances/presentation/maintenance_provider.dart';
 import 'package:bathroom_vision/features/maintenances/models/maintenance_response.dart';
+import 'package:bathroom_vision/features/maintenances/presentation/maintenance_detail_page.dart';
 import 'package:bathroom_vision/features/maintenances/presentation/maintenance_form_page.dart';
+import 'package:bathroom_vision/features/maintenances/presentation/maintenance_provider.dart';
 
 class MaintenanceListPage extends StatefulWidget {
   const MaintenanceListPage({super.key});
 
   @override
-  State<MaintenanceListPage> createState() => _MaintenanceListPageState();
+  State<MaintenanceListPage> createState() =>
+      _MaintenanceListPageState();
 }
 
-class _MaintenanceListPageState extends State<MaintenanceListPage> {
-  String search = "";
-
+class _MaintenanceListPageState
+    extends State<MaintenanceListPage> {
   @override
   void initState() {
     super.initState();
 
-    Future.microtask(() {
-      context.read<MaintenanceProvider>().loadMaintenances();
+    WidgetsBinding.instance
+        .addPostFrameCallback((_) {
+      context
+          .read<
+              MaintenanceProvider>()
+          .loadMaintenances();
     });
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final provider = context.watch<MaintenanceProvider>();
-
-    final filtered = provider.maintenances.where((m) {
-      final text = search.toLowerCase();
-
-      final description = (m.description ?? "").toLowerCase();
-      final technician = (m.technicianFullName ?? "").toLowerCase();
-
-      return description.contains(text) || technician.contains(text);
-    }).toList();
-
-    return Scaffold(
-      backgroundColor: const Color(0xFFF1F5F9),
-
-      appBar: AppBar(
-        title: const Text(
-          "Mantenimientos",
-          style: TextStyle(
-            color: Colors.white,      
-            fontWeight: FontWeight.bold, 
-            fontSize: 20,              
-          ),
-        ),
-        backgroundColor: const Color.fromARGB(255, 84, 137, 217),
-        centerTitle: true,
-      ),
-
-      body: Column(
-        children: [
-         
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: TextField(
-              decoration: InputDecoration(
-                hintText: "Buscar mantenimiento...",
-                prefixIcon: const Icon(Icons.search),
-                filled: true,
-                fillColor: Colors.white,
-                contentPadding: const EdgeInsets.symmetric(vertical: 0),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(16),
-                  borderSide: BorderSide.none,
-                ),
-              ),
-              onChanged: (value) {
-                setState(() => search = value);
-              },
-            ),
-          ),
-
-        
-          Expanded(
-            child: provider.loading
-                ? const Center(child: CircularProgressIndicator())
-                : provider.error != null
-                    ? Center(child: Text(provider.error!))
-                    : filtered.isEmpty
-                        ? _emptyState()
-                        : ListView.builder(
-                            padding: const EdgeInsets.fromLTRB(16, 0, 16, 90),
-                            itemCount: filtered.length,
-                            itemBuilder: (context, index) {
-                              final m = filtered[index];
-                              return _maintenanceCard(context, m);
-                            },
-                          ),
-          ),
-        ],
-      ),
-
-      
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: const Color.fromARGB(255, 84, 137, 217),
-        onPressed: () => _goToForm(context, null),
-        child: const Icon(Icons.add, size: 28, color: Colors.white,),
-      ),
-    );
-  }
-
-  Widget _maintenanceCard(BuildContext context, MaintenanceResponse m) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 15,
-            offset: const Offset(0, 8),
-          ),
-        ],
-        border: const Border(
-          left: BorderSide(
-            color: Color.fromARGB(255, 12, 90, 6),
-            width: 5,
-          ),
-        ),
-      ),
-      child: Row(
-        children: [
-          /// ICONO
-          Container(
-            width: 50,
-            height: 50,
-            decoration: BoxDecoration(
-              color: Colors.green.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: const Icon(Icons.build, color: Color.fromARGB(255, 12, 90, 6)),
-          ),
-
-          const SizedBox(width: 14),
-
-          
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  m.description,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w900,
-                    fontSize: 14,
-                    color: Color(0xFF1E293B),
-                  ),
-                ),
-                const SizedBox(height: 6),
-                Row(
-                  children: [
-                    const Icon(Icons.person, size: 14, color: Colors.black26),
-                    const SizedBox(width: 4),
-                    Expanded(
-                      child: Text(
-                        m.technicianFullName,
-                        style: const TextStyle(
-                          color: Colors.black54,
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-
-     
-          Row(
-            children: [
-              IconButton(
-                icon: const Icon(Icons.edit, color: Colors.black45),
-                onPressed: () => _goToForm(context, m),
-              ),
-              IconButton(
-                icon: const Icon(Icons.delete, color: Colors.redAccent),
-                onPressed: () => _confirmDelete(context, m),
-              ),
-            ],
-          )
-        ],
-      ),
-    );
-  }
-
-  void _confirmDelete(BuildContext context, MaintenanceResponse m) {
-    final provider = context.read<MaintenanceProvider>();
-
-    showDialog(
-      context: context,
-      builder: (_) {
-        return AlertDialog(
-          title: const Text("Eliminar mantenimiento"),
-          content: Text("¿Eliminar \"${m.description}\"?"),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text("Cancelar"),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                Navigator.pop(context);
-                await provider.delete(m.id);
-                await provider.loadMaintenances();
-
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("Eliminado correctamente")),
-                );
-              },
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-              child: const Text("Eliminar"),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  void _goToForm(BuildContext context, MaintenanceResponse? m) async {
-    await Navigator.push(
+  Future<void> _goToCreate() async {
+    final result =
+        await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => MaintenanceFormPage(maintenance: m),
+        builder: (_) =>
+            const MaintenanceFormPage(),
       ),
     );
 
-    context.read<MaintenanceProvider>().loadMaintenances();
+    if (result != null) {
+      context
+          .read<
+              MaintenanceProvider>()
+          .loadMaintenances();
+    }
+  }
+
+  Future<void> _goToDetail(
+    MaintenanceResponse
+        maintenance,
+  ) async {
+    final result =
+        await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) =>
+            MaintenanceDetailPage(
+          maintenance:
+              maintenance,
+        ),
+      ),
+    );
+
+    if (result != null) {
+      context
+          .read<
+              MaintenanceProvider>()
+          .loadMaintenances();
+    }
+  }
+
+  Color _statusColor(
+      String status) {
+    switch (status) {
+      case "CERRADO":
+        return Colors.green;
+      default:
+        return Colors.orange;
+    }
+  }
+
+  @override
+  Widget build(
+      BuildContext context) {
+    final provider =
+        context.watch<
+            MaintenanceProvider>();
+
+    return Scaffold(
+      backgroundColor:
+          const Color(
+        0xFFF4F6FA,
+      ),
+
+      floatingActionButton:
+          FloatingActionButton(
+        onPressed:
+            _goToCreate,
+        backgroundColor:
+            const Color(
+          0xFF5489D9,
+        ),
+        child: const Icon(
+          Icons.add,
+          color:
+              Colors.white,
+        ),
+      ),
+
+      body: SafeArea(
+        child: Column(
+          children: [
+            const SizedBox(
+                height:
+                    20),
+
+            const Padding(
+              padding:
+                  EdgeInsets.symmetric(
+                horizontal:
+                    16,
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child:
+                        Text(
+                      "Tickets de mantenimiento",
+                      style:
+                          TextStyle(
+                        fontSize:
+                            24,
+                        fontWeight:
+                            FontWeight.bold,
+                        color:
+                            Color(0xFF1E293B),
+                      ),
+                    ),
+                  ),
+                  CircleAvatar(
+                    radius:
+                        20,
+                    backgroundColor:
+                        Colors.grey,
+                    child:
+                        Icon(
+                      Icons.person,
+                      color:
+                          Colors.white,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(
+                height:
+                    18),
+
+Padding(
+  padding:
+      const EdgeInsets.symmetric(
+    horizontal: 16,
+  ),
+  child: SingleChildScrollView(
+    scrollDirection:
+        Axis.horizontal,
+    child: Row(
+      children: [
+        _filterChip(
+          text: "Todos",
+          selected:
+              provider.selectedStatus ==
+                  null,
+          onTap: () {
+            context
+                .read<
+                    MaintenanceProvider>()
+                .loadMaintenances();
+          },
+        ),
+
+        const SizedBox(width: 8),
+
+        _filterChip(
+          text: "Abiertos",
+          selected:
+              provider.selectedStatus ==
+                  "ABIERTO",
+          onTap: () {
+            context
+                .read<
+                    MaintenanceProvider>()
+                .loadMaintenances(
+                  status:
+                      "ABIERTO",
+                );
+          },
+        ),
+
+        const SizedBox(width: 8),
+
+        _filterChip(
+          text: "Cerrados",
+          selected:
+              provider.selectedStatus ==
+                  "CERRADO",
+          onTap: () {
+            context
+                .read<
+                    MaintenanceProvider>()
+                .loadMaintenances(
+                  status:
+                      "CERRADO",
+                );
+          },
+        ),
+      ],
+    ),
+  ),
+),
+
+const SizedBox(
+    height: 16),
+
+            Expanded(
+              child: provider
+                      .loading
+                  ? const Center(
+                      child:
+                          CircularProgressIndicator(),
+                    )
+                  : provider
+                          .maintenances
+                          .isEmpty
+                      ? _emptyState()
+                      : ListView.builder(
+                          padding:
+                              const EdgeInsets.fromLTRB(
+                            16,
+                            0,
+                            16,
+                            90,
+                          ),
+                          itemCount:
+                              provider
+                                  .maintenances
+                                  .length,
+                          itemBuilder:
+                              (
+                            context,
+                            index,
+                          ) {
+                            final item =
+                                provider.maintenances[
+                                    index];
+
+                            return _ticketCard(
+                              item,
+                            );
+                          },
+                        ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _ticketCard(
+    MaintenanceResponse
+        item,
+  ) {
+    final color =
+        _statusColor(
+      item.status,
+    );
+
+    return InkWell(
+      onTap: () =>
+          _goToDetail(
+        item,
+      ),
+      borderRadius:
+          BorderRadius.circular(
+        22,
+      ),
+      child: Container(
+        margin:
+            const EdgeInsets.only(
+          bottom: 16,
+        ),
+        padding:
+            const EdgeInsets.all(
+          18,
+        ),
+        decoration:
+            BoxDecoration(
+          color:
+              Colors.white,
+          borderRadius:
+              BorderRadius.circular(
+            22,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors
+                  .black
+                  .withOpacity(
+                      0.05),
+              blurRadius:
+                  12,
+              offset:
+                  const Offset(
+                0,
+                8,
+              ),
+            ),
+          ],
+          border:
+              Border(
+            left:
+                BorderSide(
+              color:
+                  color,
+              width:
+                  5,
+            ),
+          ),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 52,
+              height: 52,
+              decoration:
+                  BoxDecoration(
+                color: color
+                    .withOpacity(
+                        0.12),
+                borderRadius:
+                    BorderRadius.circular(
+                  16,
+                ),
+              ),
+              child: Icon(
+                Icons.build,
+                color:
+                    color,
+              ),
+            ),
+
+            const SizedBox(
+                width: 14),
+
+            Expanded(
+              child:
+                  Column(
+                crossAxisAlignment:
+                    CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    item.description,
+                    maxLines:
+                        2,
+                    overflow:
+                        TextOverflow.ellipsis,
+                    style:
+                        const TextStyle(
+                      fontSize:
+                          15,
+                      fontWeight:
+                          FontWeight.bold,
+                      color:
+                          Color(
+                        0xFF1E293B,
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(
+                      height:
+                          6),
+
+                  Text(
+                    item.technicianFullName,
+                    style:
+                        const TextStyle(
+                      fontSize:
+                          13,
+                      color:
+                          Colors.black54,
+                    ),
+                  ),
+
+                  const SizedBox(
+                      height:
+                          10),
+
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(
+                      horizontal:
+                          10,
+                      vertical:
+                          5,
+                    ),
+                    decoration:
+                        BoxDecoration(
+                      color: color
+                          .withOpacity(
+                              0.12),
+                      borderRadius:
+                          BorderRadius.circular(
+                        30,
+                      ),
+                    ),
+                    child:
+                        Text(
+                      item.status,
+                      style:
+                          TextStyle(
+                        fontSize:
+                            12,
+                        fontWeight:
+                            FontWeight.bold,
+                        color:
+                            color,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(
+                width: 8),
+
+            const Icon(
+              Icons
+                  .arrow_forward_ios,
+              size: 16,
+              color: Colors
+                  .black38,
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Widget _emptyState() {
     return const Center(
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisAlignment:
+            MainAxisAlignment.center,
         children: [
-          Icon(Icons.build_circle_outlined, size: 60, color: Colors.black12),
-          SizedBox(height: 12),
+          Icon(
+            Icons.build_circle_outlined,
+            size: 70,
+            color:
+                Colors.black12,
+          ),
+          SizedBox(
+              height:
+                  14),
           Text(
-            "No hay mantenimientos",
-            style: TextStyle(
-              color: Colors.black38,
-              fontWeight: FontWeight.bold,
+            "No hay tickets",
+            style:
+                TextStyle(
+              fontSize:
+                  16,
+              color:
+                  Colors.black38,
+              fontWeight:
+                  FontWeight.bold,
             ),
           ),
         ],
       ),
     );
   }
+}
+
+Widget _filterChip({
+  required String text,
+  required bool selected,
+  required VoidCallback onTap,
+}) {
+  return GestureDetector(
+    onTap: onTap,
+    child: Container(
+      padding:
+          const EdgeInsets.symmetric(
+        horizontal: 16,
+        vertical: 10,
+      ),
+      decoration:
+          BoxDecoration(
+        color: selected
+            ? Colors.blue
+            : Colors.white,
+        borderRadius:
+            BorderRadius.circular(
+          30,
+        ),
+        border: Border.all(
+          color: selected
+              ? Colors.blue
+              : Colors.black12,
+        ),
+      ),
+      child: Text(
+        text,
+        style: TextStyle(
+          fontWeight:
+              FontWeight.bold,
+          color: selected
+              ? Colors.white
+              : Colors.black87,
+        ),
+      ),
+    ),
+  );
 }

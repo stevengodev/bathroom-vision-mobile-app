@@ -5,12 +5,14 @@ class MaintenanceResponse {
   final BathroomResponse bathroom;
   final String technicianFullName;
   final String description;
+  final String status;
 
   MaintenanceResponse({
     required this.id,
     required this.bathroom,
     required this.technicianFullName,
     required this.description,
+    required this.status,
   });
 
   factory MaintenanceResponse.fromJson(Map<String, dynamic> json) {
@@ -19,6 +21,7 @@ class MaintenanceResponse {
       bathroom: BathroomResponse.fromJson(json["bathroom"]),
       technicianFullName: json["technicianFullName"],
       description: json["description"],
+      status: json["status"],
     );
   }
 }
