@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "288736113067",
+    "project_id": "notification-service-545b7",
+    "storage_bucket": "notification-service-545b7.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:288736113067:android:dea5284c79d1cc219ae2ee",
+        "android_client_info": {
+          "package_name": "com.example.bathroom_vision"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAT9fw_jq0gNEiPGL5VCGtB-PSWUYZRIws"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

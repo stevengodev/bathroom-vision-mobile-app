@@ -1,16 +1,13 @@
+import 'dart:ui';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
 import 'package:bathroom_vision/features/auth/models/user_response.dart';
 import 'package:bathroom_vision/features/auth/presentation/user_profile_page.dart';
 import 'package:bathroom_vision/features/auth/presentation/user_provider.dart';
 import 'package:bathroom_vision/features/bathrooms/presentation/bathrooms_page.dart';
 import 'package:bathroom_vision/features/blocks/presentation/blocks_page.dart';
 import 'package:bathroom_vision/shared/enums/role.dart';
-import 'package:bathroom_vision/shared/widgets/custom_bottom_nav_bar.dart';
-import 'package:bathroom_vision/shared/widgets/menu_button.dart';
-import 'package:bathroom_vision/shared/widgets/menu_hamburguer.dart';
-import 'package:bathroom_vision/shared/widgets/menu_title.dart';
-import 'package:bathroom_vision/shared/widgets/user_header.dart';
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 class NavigationPage extends StatefulWidget {
   const NavigationPage({super.key});
@@ -19,17 +16,59 @@ class NavigationPage extends StatefulWidget {
   State<NavigationPage> createState() => _NavigationPageState();
 }
 
-class _NavigationPageState extends State<NavigationPage> {
-  int _currentIndex = 0;
+class _NavigationPageState extends State<NavigationPage>
+    with SingleTickerProviderStateMixin {
+  bool _menuOpen = false;
+  late AnimationController _controller;
 
   @override
   void initState() {
     super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 500),
+    );
 
-    Future.microtask(() {
+    Future.microtask(() async {
       final userProvider = Provider.of<UserProvider>(context, listen: false);
-      userProvider.loadUserProfile();
+      await userProvider.loadUserProfile();
     });
+  }
+
+  void _toggleMenu() {
+    setState(() => _menuOpen = !_menuOpen);
+    if (_menuOpen) {
+      _controller.forward(from: 0);
+    } else {
+      _controller.reverse();
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  String _getDescription(String title) {
+    switch (title) {
+      case "Baños":
+        return "Gestiona todos los baños de la institución de forma rápida.";
+      case "Bloques":
+        return "Administra los bloques y zonas del campus universitario.";
+      case "Limpiezas":
+        return "Organiza y gestiona los horarios de limpieza general.";
+      case "Mis Limpiezas":
+        return "Consulta tus horarios asignados y tareas para hoy.";
+      case "Usuarios":
+        return "Administra los accesos y usuarios activos del sistema.";
+      case "Mantenimientos":
+        return "Reporta o gestiona reparaciones y mantenimientos.";
+      case "Incidencias":
+        return "Consulta incidencias reportadas por los usuarios.";
+      default:
+        return "";
+    }
   }
 
   @override
@@ -38,137 +77,165 @@ class _NavigationPageState extends State<NavigationPage> {
     final user = userProvider.user;
 
     if (userProvider.loading) {
-      return const Center(child: CircularProgressIndicator());
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     if (user == null) {
-      return const Center(child: Text("No se pudo cargar el usuario"));
+      return const Scaffold(body: Center(child: Text("No se pudo cargar el usuario")));
     }
 
     return Scaffold(
-      backgroundColor: Colors.grey[100],
-      body: _buildBody(user),
-      bottomNavigationBar: CustomBottomNavBar(
-        currentIndex: _currentIndex,
-        onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-          _handleNavigation(index);
-        },
+      body: Stack(
+        children: [
+          // FONDO GRADIENTE
+          Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [Color(0xFF8FD99F), Color(0xFF6ABF84), Color(0xFF4CB0AF)],
+              ),
+            ),
+          ),
+
+          _buildHome(user),
+
+          if (_menuOpen)
+            GestureDetector(
+              onTap: _toggleMenu,
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+                child: Container(color: Colors.black.withOpacity(0.25)),
+              ),
+            ),
+
+          if (_menuOpen)
+            Center(
+              child: ScaleTransition(
+                scale: CurvedAnimation(parent: _controller, curve: Curves.easeOutBack),
+                child: _buildDropdownMenu(user),
+              ),
+            ),
+        ],
       ),
     );
   }
 
-  Widget _buildBody(UserResponse user) {
-    switch (_currentIndex) {
-      case 0:
-        return _buildMenuContent(user);
-      case 1:
-        return const BlocksPage();
-      case 2:
-        return const BathroomsPage();
-      case 3:
-        return const UserProfilePage();
-      default:
-        return _buildMenuContent(user);
-    }
+  Widget _buildDropdownMenu(UserResponse user) {
+    return Container(
+      width: 260,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(28),
+        // IGUAL AL FONDO DE LOS CUADROS
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            const Color(0xFFF5F5F5).withOpacity(0.65),
+            const Color(0xFFE0E0E0).withOpacity(0.55)
+          ],
+        ),
+        border: Border.all(color: Colors.white.withOpacity(0.5)),
+        boxShadow: [
+          BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 20, offset: const Offset(0, 10))
+        ],
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(user.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.black87)),
+          const SizedBox(height: 12),
+          Container(
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              boxShadow: [BoxShadow(color: Colors.white, blurRadius: 20, spreadRadius: 2)],
+            ),
+            child: const CircleAvatar(
+              radius: 35,
+              backgroundColor: Colors.grey,
+              child: Icon(Icons.person, color: Colors.white, size: 40),
+            ),
+          ),
+          const SizedBox(height: 10),
+          Text("Rol: ${user.role}", style: const TextStyle(fontSize: 12, color: Colors.black54, fontWeight: FontWeight.bold)),
+          const Divider(height: 30, color: Colors.black12),
+          ListTile(
+            leading: const Icon(Icons.person, size: 20, color: Colors.black87),
+            title: const Text("Ver perfil", style: TextStyle(color: Colors.black87, fontWeight: FontWeight.w500)),
+            onTap: () {
+              _toggleMenu();
+              Navigator.push(context, MaterialPageRoute(builder: (_) => const UserProfilePage()));
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.logout, color: Colors.redAccent, size: 20),
+            title: const Text("Salir", style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold)),
+            onTap: () => Navigator.pushReplacementNamed(context, '/login'),
+          ),
+        ],
+      ),
+    );
   }
 
-  Widget _buildMenuContent(UserResponse user) {
-    return Container(
-      color: const Color(0xFF8FD99F),
-      child: SafeArea(
+  Widget _buildHome(UserResponse user) {
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 18),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            UserHeader(userName: user.name, role: user.role, isOnline: true),
-
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  // Botón menú a la izquierda
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: MenuHamburguer(
-                      onTap: () {
-                        print('Menú presionado');
-                      },
-                    ),
-                  ),
-
-                  MenuTitle(title: "BAÑOVISIÓN"),
-                ],
+            const SizedBox(height: 10),
+            const Text("BAÑOVISIÓN", 
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white)),
+            const SizedBox(height: 10),
+            
+            Center(
+              child: Text(
+                "Bienvenido, ${user.name}", 
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
               ),
             ),
-
-            const SizedBox(height: 8),
+            const SizedBox(height: 15),
+            
+            GestureDetector(
+              onTap: _toggleMenu,
+              child: Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  boxShadow: [BoxShadow(color: Colors.white.withOpacity(0.4), blurRadius: 20)],
+                ),
+                child: const CircleAvatar(
+                  radius: 42, 
+                  backgroundColor: Colors.grey, 
+                  child: Icon(Icons.person, size: 45, color: Colors.white),
+                ),
+              ),
+            ),
+            
+            const SizedBox(height: 10),
+            Text(
+              "Rol: ${user.role}", 
+              style: const TextStyle(fontSize: 13, color: Colors.white70, fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 20),
 
             Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    MenuButton(
-                      title: 'Inicio',
-                      onTap: () {
-                        Navigator.pushNamed(context, '/inicio');
-                      },
-                    ),
-                    MenuButton(
-                      title: 'Baños disponibles',
-                      onTap: () {
-                        Navigator.pushNamed(context, '/banos-disponibles');
-                      },
-                    ),
-                    if (user.role == Role.ADMIN.name)
-                      MenuButton(
-                        title: 'Horarios de Limpiezas',
-                        onTap: () {
-                          Navigator.pushNamed(context, '/horarios-limpiezas');
-                        },
-                      ),
-                    if (user.role == Role.CLEANER.name)
-                      MenuButton(
-                        title: 'Mis horarios de Limpiezas',
-                        onTap: () {
-                          Navigator.pushNamed(
-                            context,
-                            '/horarios-limpiezas/me',
-                          );
-                        },
-                      ),
-
-                    if (user.role == Role.ADMIN.name)
-                      MenuButton(
-                        title: 'Gestionar Usuarios',
-                        onTap: () {
-                          Navigator.pushNamed(context, '/gestionar-usuarios');
-                        },
-                      ),
-
-                    MenuButton(
-                      title: 'Mantenimientos',
-                      onTap: () {
-                        Navigator.pushNamed(context, '/mantenimientos');
-                      },
-                    ),
-                    MenuButton(
-                      title: 'Incidencias',
-                      onTap: () {
-                        Navigator.pushNamed(context, '/incidencias');
-                      },
-                    ),
-                    MenuButton(
-                      title: 'Cerrar sesión',
-                      onTap: () {
-                        _showLogoutDialog(context);
-                      },
-                    ),
-                    const SizedBox(height: 20),
-                  ],
-                ),
+              child: GridView.count(
+                crossAxisCount: 2,
+                crossAxisSpacing: 12,
+                mainAxisSpacing: 12,
+                childAspectRatio: 1.4, 
+                children: [
+                  _card(Icons.bathroom, "Baños", Colors.blueAccent, () => Navigator.push(context, MaterialPageRoute(builder: (_) => const BathroomsPage()))),
+                  _card(Icons.grid_view, "Bloques", Colors.purpleAccent, () => Navigator.push(context, MaterialPageRoute(builder: (_) => const BlocksPage()))),
+                  if (user.role == Role.ADMIN.name) _card(Icons.cleaning_services, "Limpiezas", Colors.orangeAccent, () => Navigator.pushNamed(context, '/horarios-limpiezas')),
+                  if (user.role == Role.CLEANER.name) _card(Icons.schedule, "Mis Limpiezas", Colors.purpleAccent, () => Navigator.pushNamed(context, '/horarios-limpiezas/me')),
+                  if (user.role == Role.ADMIN.name) _card(Icons.people, "Usuarios", Colors.deepOrangeAccent, () => Navigator.pushNamed(context, '/gestionar-usuarios')),
+                  _card(Icons.build, "Mantenimientos", Colors.tealAccent[700]!, () => Navigator.pushNamed(context, '/mantenimientos')),
+                  _card(Icons.report_problem, "Incidencias", Colors.amber, () => Navigator.pushNamed(context, '/incidencias')),
+                ],
               ),
             ),
           ],
@@ -177,36 +244,86 @@ class _NavigationPageState extends State<NavigationPage> {
     );
   }
 
-  void _handleNavigation(int index) {
-    // Metodo para manejar la navegación según el índice seleccionado
-    // De momento solo imprime el índice, pero puede que se agregue lógica
-    // para navegar a diferentes páginas más adelante
-    print('Navegando a índice: $index');
-  }
-
-  void _showLogoutDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Cerrar sesión'),
-        content: const Text('¿Estás seguro de que deseas cerrar sesión?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancelar'),
-          ),
-          TextButton(
-            onPressed: () {
-              print('Sesión cerrada');
-              Navigator.pushReplacementNamed(context, '/login');
-            },
-            child: const Text(
-              'Cerrar sesión',
-              style: TextStyle(color: Colors.red),
+  Widget _card(IconData icon, String title, Color color, VoidCallback onTap) {
+    final description = _getDescription(title);
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0.85, end: 1),
+      duration: const Duration(milliseconds: 350),
+      curve: Curves.easeOutBack,
+      builder: (context, value, child) {
+        return Transform.scale(
+          scale: value,
+          child: GestureDetector(
+            onTap: onTap,
+            child: Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [const Color(0xFFF5F5F5).withOpacity(0.65), const Color(0xFFE0E0E0).withOpacity(0.55)],
+                ),
+                border: Border.all(color: Colors.white.withOpacity(0.5)),
+                boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10)],
+              ),
+              child: Stack(
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: color.withOpacity(0.15),
+                          border: Border.all(color: color.withOpacity(0.6), width: 1.5),
+                          boxShadow: [
+                            BoxShadow(color: color.withOpacity(0.4), blurRadius: 10, spreadRadius: 1),
+                          ],
+                        ),
+                        child: Icon(
+                          icon, 
+                          size: 32, 
+                          color: color,
+                          shadows: [
+                            Shadow(blurRadius: 4, color: Colors.black.withOpacity(0.2), offset: const Offset(1, 1)),
+                          ],
+                        ), 
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(title, 
+                              maxLines: 1, 
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black87)),
+                            const SizedBox(height: 2),
+                            Text(
+                              description,
+                              maxLines: 3,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(fontSize: 8.5, color: Colors.black54, height: 1.0),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  Positioned(
+                    bottom: 0,
+                    right: 0,
+                    child: Text("➔", 
+                      style: TextStyle(fontSize: 14, color: Colors.black38, fontWeight: FontWeight.bold)),
+                  ),
+                ],
+              ),
             ),
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 }

@@ -187,7 +187,7 @@ class _MaintenanceFormPageState
                 _title(
                   "Información del mantenimiento",
                 ),
-
+  
                 const SizedBox(
                     height:
                         20),
@@ -488,16 +488,19 @@ class _MaintenanceFormPageState
         ),
         const SizedBox(
             width: 8),
-        Text(
-          text,
-          style:
-              const TextStyle(
-            fontSize:
-                18,
-            fontWeight:
-                FontWeight.bold,
+       Flexible(
+          child: Text(
+            text,
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+            maxLines: 2, 
+            overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.center,
           ),
-        ),
+        )
+
       ],
     );
   }
