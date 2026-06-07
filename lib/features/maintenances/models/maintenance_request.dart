@@ -2,7 +2,7 @@ class MaintenanceRequest {
   final int bathroomId;
   final String technicianFullName;
   final String description;
-   final String scheduledAt;
+  final String scheduledAt;
 
   MaintenanceRequest({
     required this.bathroomId,

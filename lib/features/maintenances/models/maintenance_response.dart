@@ -6,6 +6,9 @@ class MaintenanceResponse {
   final String technicianFullName;
   final String description;
   final String status;
+  final String scheduledAt;
+  final String reportedAt;
+  final String? resolvedAt;
 
   MaintenanceResponse({
     required this.id,
@@ -13,6 +16,9 @@ class MaintenanceResponse {
     required this.technicianFullName,
     required this.description,
     required this.status,
+    required this.scheduledAt,
+    required this.reportedAt,
+    required this.resolvedAt,
   });
 
   factory MaintenanceResponse.fromJson(Map<String, dynamic> json) {
@@ -22,6 +28,9 @@ class MaintenanceResponse {
       technicianFullName: json["technicianFullName"],
       description: json["description"],
       status: json["status"],
+      scheduledAt: json["scheduledAt"],
+      reportedAt: json["reportedAt"],
+      resolvedAt: json["resolvedAt"],
     );
   }
 }

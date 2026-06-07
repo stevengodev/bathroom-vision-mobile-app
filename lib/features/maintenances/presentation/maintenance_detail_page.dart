@@ -1,10 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import 'package:bathroom_vision/features/maintenances/models/maintenance_response.dart';
 import 'package:bathroom_vision/features/maintenances/presentation/maintenance_form_page.dart';
 import 'package:bathroom_vision/features/maintenances/presentation/maintenance_provider.dart';
 import 'package:bathroom_vision/features/maintenances/presentation/maintenance_status_page.dart';
+
+String formatDate(String? date) {
+  if (date == null || date.isEmpty) {
+    return "No disponible";
+  }
+
+  final parsedDate = DateTime.parse(date);
+
+  return DateFormat('dd/MM/yyyy HH:mm').format(parsedDate);
+}
 
 class MaintenanceDetailPage extends StatelessWidget {
   final MaintenanceResponse maintenance;
@@ -40,7 +51,7 @@ class MaintenanceDetailPage extends StatelessWidget {
         backgroundColor: Colors.white,
         iconTheme: const IconThemeData(color: Colors.black),
         title: const Text(
-          "Detalle ticket",
+          "Detalle mantenimiento",
           style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
         ),
       ),
@@ -82,7 +93,7 @@ class MaintenanceDetailPage extends StatelessWidget {
 
                       Expanded(
                         child: Text(
-                          "Ticket #${maintenance.id}",
+                          "Mantenimiento #${maintenance.id}",
                           style: const TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
@@ -130,8 +141,7 @@ class MaintenanceDetailPage extends StatelessWidget {
                   _infoRow(
                     Icons.location_on,
                     "Baño",
-                    "${maintenance.bathroom.nameBlock} - " +
-                        "${maintenance.bathroom.floor}",
+                    "${maintenance.bathroom.nameBlock} - Piso ${maintenance.bathroom.floor}",
                   ),
 
                   const SizedBox(height: 14),
@@ -144,33 +154,28 @@ class MaintenanceDetailPage extends StatelessWidget {
 
                   const SizedBox(height: 14),
 
-                  Row(
-                    children: [
-                      Icon(_statusIcon(maintenance.status), color: statusColor),
-                      const SizedBox(width: 10),
-                      const Text(
-                        "Estado",
-                        style: TextStyle(color: Colors.black54),
-                      ),
-                      const Spacer(),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 6,
-                        ),
-                        decoration: BoxDecoration(
-                          color: statusColor.withOpacity(0.12),
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                        child: Text(
-                          maintenance.status,
-                          style: TextStyle(
-                            color: statusColor,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ],
+                  _infoRow(
+                    Icons.schedule,
+                    "Programado para",
+                    formatDate(maintenance.scheduledAt),
+                  ),
+
+                  const SizedBox(height: 14),
+
+                  _infoRow(
+                    Icons.report_problem,
+                    "Resuelto el",
+                    formatDate(maintenance.resolvedAt),
+                  ),
+
+                  const SizedBox(height: 14),
+
+                  const SizedBox(height: 14),
+
+                  _infoRow(
+                    _statusIcon(maintenance.status),
+                    "Estado",
+                    maintenance.status,
                   ),
                 ],
               ),
@@ -241,16 +246,37 @@ class MaintenanceDetailPage extends StatelessWidget {
 
   Widget _infoRow(IconData icon, String label, String value) {
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Icon(icon, size: 20, color: Colors.black54),
+
         const SizedBox(width: 10),
-        Text(label, style: const TextStyle(color: Colors.black54)),
-        const Spacer(),
-        Flexible(
-          child: Text(
-            value,
-            textAlign: TextAlign.right,
-            style: const TextStyle(fontWeight: FontWeight.bold),
+
+        Expanded(
+          child: RichText(
+            text: TextSpan(
+              style: const TextStyle(
+                fontSize: 15,
+                color: Colors.black,
+                height: 1.4,
+              ),
+              children: [
+                TextSpan(
+                  text: "$label: ",
+                  style: const TextStyle(
+                    color: Colors.black54,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                TextSpan(
+                  text: value,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF1E293B),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ],

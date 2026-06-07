@@ -51,8 +51,7 @@ class _MaintenanceStatusPageState
 
     try {
       await context
-          .read<
-              MaintenanceProvider>()
+          .read<MaintenanceProvider>()
           .updateMaintenanceStatus(
             widget.maintenance.id,
             selectedStatus,

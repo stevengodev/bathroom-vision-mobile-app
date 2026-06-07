@@ -9,7 +9,6 @@ class MaintenanceApi {
   MaintenanceApi(this.apiClient);
 
   Future<List<MaintenanceResponse>> getAll({String? status}) async {
-
     dynamic queryParameters;
 
     if (status != null) {
@@ -34,15 +33,8 @@ class MaintenanceApi {
     try {
       final response = await apiClient.dio.get("/api/maintenances/my");
 
-      if (response.statusCode == 200) {
-        final List data = response.data;
-        return data.map((e) => MaintenanceResponse.fromJson(e)).toList();
-      } else {
-        throw ApiException(
-          "Error al obtener mis mantenimientos",
-          statusCode: response.statusCode,
-        );
-      }
+      final List data = response.data;
+      return data.map((e) => MaintenanceResponse.fromJson(e)).toList();
     } catch (e) {
       throw ApiException("Error al obtener mis mantenimientos");
     }
@@ -54,15 +46,8 @@ class MaintenanceApi {
         "/api/maintenances/bathroom/$bathroomId",
       );
 
-      if (response.statusCode == 200) {
-        final List data = response.data;
-        return data.map((e) => MaintenanceResponse.fromJson(e)).toList();
-      } else {
-        throw ApiException(
-          "Error al obtener mantenimientos por baño",
-          statusCode: response.statusCode,
-        );
-      }
+      final List data = response.data;
+      return data.map((e) => MaintenanceResponse.fromJson(e)).toList();
     } catch (e) {
       throw ApiException("Error al obtener mantenimientos por baño");
     }
@@ -72,14 +57,7 @@ class MaintenanceApi {
     try {
       final response = await apiClient.dio.get("/api/maintenances/$id");
 
-      if (response.statusCode == 200) {
-        return MaintenanceResponse.fromJson(response.data);
-      } else {
-        throw ApiException(
-          "Error al obtener mantenimiento",
-          statusCode: response.statusCode,
-        );
-      }
+      return MaintenanceResponse.fromJson(response.data);
     } catch (e) {
       throw ApiException("Error al obtener mantenimiento");
     }
@@ -92,14 +70,7 @@ class MaintenanceApi {
         data: request.toJson(),
       );
 
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        return MaintenanceResponse.fromJson(response.data);
-      } else {
-        throw ApiException(
-          "Error al crear mantenimiento",
-          statusCode: response.statusCode,
-        );
-      }
+      return MaintenanceResponse.fromJson(response.data);
     } catch (e) {
       throw ApiException("Error al crear mantenimiento");
     }
@@ -112,14 +83,7 @@ class MaintenanceApi {
         data: request.toJson(),
       );
 
-      if (response.statusCode == 200) {
-        return MaintenanceResponse.fromJson(response.data);
-      } else {
-        throw ApiException(
-          "Error al actualizar mantenimiento",
-          statusCode: response.statusCode,
-        );
-      }
+      return MaintenanceResponse.fromJson(response.data);
     } catch (e) {
       throw ApiException("Error al actualizar mantenimiento");
     }
@@ -127,14 +91,7 @@ class MaintenanceApi {
 
   Future<void> delete(int id) async {
     try {
-      final response = await apiClient.dio.delete("/api/maintenances/$id");
-
-      if (response.statusCode != 200 && response.statusCode != 204) {
-        throw ApiException(
-          "Error al eliminar mantenimiento",
-          statusCode: response.statusCode,
-        );
-      }
+      await apiClient.dio.delete("/api/maintenances/$id");
     } catch (e) {
       throw ApiException("Error al eliminar mantenimiento");
     }
@@ -142,19 +99,12 @@ class MaintenanceApi {
 
   Future<MaintenanceResponse> updateStatus(int id, String status) async {
     try {
-      final response = await apiClient.dio.put(
+      final response = await apiClient.dio.patch(
         "/api/maintenances/$id/status",
-        data: {"status": status},
+        queryParameters: {"status": status},
       );
 
-      if (response.statusCode == 200) {
-        return MaintenanceResponse.fromJson(response.data);
-      } else {
-        throw ApiException(
-          "Error al actualizar estado del mantenimiento",
-          statusCode: response.statusCode,
-        );
-      }
+      return MaintenanceResponse.fromJson(response.data);
     } catch (e) {
       throw ApiException("Error al actualizar estado del mantenimiento");
     }

@@ -80,7 +80,7 @@ class _MaintenanceListPageState extends State<MaintenanceListPage> {
         ),
 
         title: const Text(
-          "Tickets",
+          "Mantenimientos",
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
@@ -280,7 +280,7 @@ class _MaintenanceListPageState extends State<MaintenanceListPage> {
           ),
           SizedBox(height: 14),
           Text(
-            "No hay tickets",
+            "No hay mantenimientos",
             style: TextStyle(
               fontSize: 16,
               color: Colors.black38,
