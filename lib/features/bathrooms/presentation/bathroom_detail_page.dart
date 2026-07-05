@@ -7,6 +7,7 @@ import 'package:bathroom_vision/features/bathrooms/presentation/bathroom_provide
 import 'package:bathroom_vision/features/bathrooms/presentation/bathroom_status_page.dart';
 import 'package:bathroom_vision/features/incidents/models/incident_request.dart';
 import 'package:bathroom_vision/features/incidents/presentation/incident_provider.dart';
+import 'package:bathroom_vision/shared/enums/role.dart';
 import 'package:bathroom_vision/shared/utils/status_color.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -38,6 +39,8 @@ class _BathroomDetailPageState extends State<BathroomDetailPage> {
   @override
   Widget build(BuildContext context) {
     final bathroom = widget.bathroom;
+    final userProvider = context.watch<UserProvider>();
+    final isAdmin = userProvider.user?.role.toUpperCase() == Role.ADMIN.name;
 
     return Scaffold(
       appBar: AppBar(title: const Text("Detalles del baño")),
@@ -144,93 +147,94 @@ class _BathroomDetailPageState extends State<BathroomDetailPage> {
                 const SizedBox(height: 30),
 
                 // ACCIONES
-                Row(
-                  children: [
-                    Expanded(
-                      child: ElevatedButton.icon(
-                        onPressed: () async {
-                          final request = BathroomRequest(
-                            gender: bathroom.gender,
-                            blockId: bathroom.blockId,
-                            status: bathroom.status,
-                            floor: bathroom.floor,
-                          );
+                if (isAdmin)
+                  Row(
+                    children: [
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          onPressed: () async {
+                            final request = BathroomRequest(
+                              gender: bathroom.gender,
+                              blockId: bathroom.blockId,
+                              status: bathroom.status,
+                              floor: bathroom.floor,
+                            );
 
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => BathroomFormPage(
-                                bathroom: request,
-                                id: bathroom.id,
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => BathroomFormPage(
+                                  bathroom: request,
+                                  id: bathroom.id,
+                                ),
                               ),
-                            ),
-                          );
-                        },
-                        icon: const Icon(Icons.edit),
-                        label: const Text("Editar"),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue[400],
-                          foregroundColor: Colors.white,
+                            );
+                          },
+                          icon: const Icon(Icons.edit),
+                          label: const Text("Editar"),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.blue[400],
+                            foregroundColor: Colors.white,
+                          ),
                         ),
                       ),
-                    ),
 
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: ElevatedButton.icon(
-                        onPressed: () async {
-                          final confirm = await showDialog<bool>(
-                            context: context,
-                            builder: (_) => AlertDialog(
-                              title: const Text("Eliminar baño"),
-                              content: const Text(
-                                "¿Estás seguro de que quieres eliminar este baño?",
-                              ),
-                              actions: [
-                                TextButton(
-                                  onPressed: () =>
-                                      Navigator.pop(context, false),
-                                  child: const Text("Cancelar"),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          onPressed: () async {
+                            final confirm = await showDialog<bool>(
+                              context: context,
+                              builder: (_) => AlertDialog(
+                                title: const Text("Eliminar baño"),
+                                content: const Text(
+                                  "¿Estás seguro de que quieres eliminar este baño?",
                                 ),
-                                TextButton(
-                                  onPressed: () => Navigator.pop(context, true),
-                                  child: const Text(
-                                    "Eliminar",
-                                    style: TextStyle(color: Colors.red),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () =>
+                                        Navigator.pop(context, false),
+                                    child: const Text("Cancelar"),
                                   ),
-                                ),
-                              ],
-                            ),
-                          );
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(context, true),
+                                    child: const Text(
+                                      "Eliminar",
+                                      style: TextStyle(color: Colors.red),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
 
-                          if (confirm == true) {
-                            try {
-                              await context
-                                  .read<BathroomProvider>()
-                                  .deleteBathroom(bathroom.id);
+                            if (confirm == true) {
+                              try {
+                                await context
+                                    .read<BathroomProvider>()
+                                    .deleteBathroom(bathroom.id);
 
-                              if (mounted) {
-                                Navigator.pop(context, true);
+                                if (mounted) {
+                                  Navigator.pop(context, true);
+                                }
+                              } catch (e) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text("Error al eliminar: $e"),
+                                  ),
+                                );
                               }
-                            } catch (e) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text("Error al eliminar: $e"),
-                                ),
-                              );
                             }
-                          }
-                        },
-                        icon: const Icon(Icons.delete),
-                        label: const Text("Eliminar"),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red,
-                          foregroundColor: Colors.white,
+                          },
+                          icon: const Icon(Icons.delete),
+                          label: const Text("Eliminar"),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.red,
+                            foregroundColor: Colors.white,
+                          ),
                         ),
                       ),
-                    ),
-                  ],
-                ),
+                    ],
+                  ),
 
                 const SizedBox(height: 20),
 

@@ -1,6 +1,8 @@
+import 'package:bathroom_vision/features/auth/presentation/user_provider.dart';
 import 'package:bathroom_vision/features/blocks/models/block_request.dart';
 import 'package:bathroom_vision/features/blocks/models/block_response.dart';
 import 'package:bathroom_vision/features/blocks/presentation/blocks_provider.dart';
+import 'package:bathroom_vision/shared/enums/role.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'block_form_page.dart';
@@ -62,20 +64,25 @@ class BlockDetailPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final userProvider = context.watch<UserProvider>();
+    final isAdmin = userProvider.user?.role.toUpperCase() == Role.ADMIN.name;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(block.name),
         backgroundColor: const Color(0xFF8FD99F),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.edit),
-            onPressed: () => _edit(context),
-          ),
-          IconButton(
-            icon: const Icon(Icons.delete),
-            onPressed: () => _delete(context),
-          ),
-        ],
+        actions: isAdmin
+            ? [
+                IconButton(
+                  icon: const Icon(Icons.edit),
+                  onPressed: () => _edit(context),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.delete),
+                  onPressed: () => _delete(context),
+                ),
+              ]
+            : null,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -119,43 +126,44 @@ class BlockDetailPage extends StatelessWidget {
             ),
             const SizedBox(height: 30),
 
-            Row(
-              children: [
-                Expanded(
-                  child: ElevatedButton.icon(
-                    onPressed: () => _edit(context),
-                    icon: const Icon(Icons.edit),
-                    label: const Text('Editar'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF8FD99F),
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      textStyle: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
+            if (isAdmin)
+              Row(
+                children: [
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: () => _edit(context),
+                      icon: const Icon(Icons.edit),
+                      label: const Text('Editar'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF8FD99F),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        textStyle: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
                       ),
                     ),
                   ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: ElevatedButton.icon(
-                    onPressed: () => _delete(context),
-                    icon: const Icon(Icons.delete),
-                    label: const Text('Eliminar'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.redAccent,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      textStyle: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: () => _delete(context),
+                      icon: const Icon(Icons.delete),
+                      label: const Text('Eliminar'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.redAccent,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        textStyle: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
-            ),
+                ],
+              ),
           ],
         ),
       ),
