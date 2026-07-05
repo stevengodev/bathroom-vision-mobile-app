@@ -211,6 +211,30 @@ class _WeeklySchedulePageState extends State<WeeklySchedulePage> {
 
     final color = colors[index % colors.length];
 
+    String formatTime12(String time24) {
+      final t = time24.trim();
+      if (t.isEmpty) return t;
+      try {
+        final parsed = DateFormat.Hm().parse(t);
+        return DateFormat.jm().format(parsed);
+      } catch (_) {
+        try {
+          final parsed = DateFormat('HH:mm:ss').parse(t);
+          return DateFormat.jm().format(parsed);
+        } catch (_) {
+          try {
+            final parsed = DateTime.parse(t);
+            return DateFormat.jm().format(parsed);
+          } catch (_) {
+            return t;
+          }
+        }
+      }
+    }
+
+    final displayStart = formatTime12(e.startTime);
+    final displayEnd = formatTime12(e.endTime);
+
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       padding: const EdgeInsets.all(16),
@@ -223,17 +247,32 @@ class _WeeklySchedulePageState extends State<WeeklySchedulePage> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(e.startTime, style: const TextStyle(color: Colors.white)),
-              Text(e.endTime, style: const TextStyle(color: Colors.white70)),
+              Text(displayStart, style: const TextStyle(color: Colors.white)),
+              Text(displayEnd, style: const TextStyle(color: Colors.white70)),
             ],
           ),
           const SizedBox(width: 16),
-          Text(
-            "${e.bathroom.nameBlock}",
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "${e.bathroom.nameBlock} - ${e.bathroom.gender.name}",
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  "Piso ${e.bathroom.floor}",
+                  style: const TextStyle(
+                    color: Colors.white70,
+                    fontSize: 14,
+                  ),
+                ),
+              ],
             ),
           ),
         ],
