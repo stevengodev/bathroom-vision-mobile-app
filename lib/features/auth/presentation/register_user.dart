@@ -4,6 +4,7 @@ import 'package:bathroom_vision/shared/enums/role.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'user_provider.dart';
+import 'package:bathroom_vision/features/auth/presentation/auth_provider.dart';
 
 class RegisterUser extends StatefulWidget {
   final UserResponse? user;
@@ -79,7 +80,7 @@ class _RegisterUserState extends State<RegisterUser> {
                   labelText: 'Email',
                   border: OutlineInputBorder(),
                 ),
-                validator: (v) => v!.isEmpty ? 'Ingrese email' : null,
+                validator: (v) => AuthProvider.validateInstitutionalEmail(v),
               ),
 
               const SizedBox(height: 12),
