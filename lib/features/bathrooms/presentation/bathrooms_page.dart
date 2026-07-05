@@ -1,9 +1,11 @@
+import 'package:bathroom_vision/features/auth/presentation/user_provider.dart';
 import 'package:bathroom_vision/features/bathrooms/presentation/bathroom_card.dart';
 import 'package:bathroom_vision/features/bathrooms/presentation/bathroom_detail_page.dart';
 import 'package:bathroom_vision/features/bathrooms/presentation/bathroom_form_page.dart';
 import 'package:bathroom_vision/features/blocks/presentation/blocks_provider.dart';
 import 'package:bathroom_vision/shared/enums/bathroom_status.dart';
 import 'package:bathroom_vision/shared/enums/gender.dart';
+import 'package:bathroom_vision/shared/enums/role.dart';
 import 'package:bathroom_vision/shared/widgets/filter_chip_widget.dart';
 import 'package:bathroom_vision/shared/widgets/gender_filter_button.dart';
 import 'package:flutter/material.dart';
@@ -32,6 +34,7 @@ class _BathroomsPageState extends State<BathroomsPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<BathroomProvider>().loadAllBathrooms();
       context.read<BlocksProvider>().loadBlocks();
+      context.read<UserProvider>().loadUserProfile();
     });
   }
 
@@ -297,16 +300,22 @@ class _BathroomsPageState extends State<BathroomsPage> {
     final hasActiveFilters =
         _selectedStatus != null || _selectedBlockId != null;
 
+    final userProvider = context.watch<UserProvider>();
+    final isAdmin = userProvider.user?.role.toUpperCase() == Role.ADMIN.name;
+
     return Scaffold(
       backgroundColor: Colors.white,
-      floatingActionButton: FloatingActionButton(
-        onPressed: _goToCreate,
-        backgroundColor: const Color.fromARGB(255, 143, 217, 159),
-        elevation: 6,
-        shape: const CircleBorder(),
-        child: const Icon(Icons.add, color: Colors.white, size: 30),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      floatingActionButton: isAdmin
+          ? FloatingActionButton(
+              onPressed: _goToCreate,
+              backgroundColor: const Color.fromARGB(255, 143, 217, 159),
+              elevation: 6,
+              shape: const CircleBorder(),
+              child: const Icon(Icons.add, color: Colors.white, size: 30),
+            )
+          : null,
+      floatingActionButtonLocation:
+          isAdmin ? FloatingActionButtonLocation.endFloat : null,
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

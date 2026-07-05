@@ -1,6 +1,8 @@
+import 'package:bathroom_vision/features/auth/presentation/user_provider.dart';
 import 'package:bathroom_vision/features/blocks/models/block_response.dart';
 import 'package:bathroom_vision/features/blocks/presentation/block_card.dart';
 import 'package:bathroom_vision/features/blocks/presentation/blocks_provider.dart';
+import 'package:bathroom_vision/shared/enums/role.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'block_detail_page.dart';
@@ -22,7 +24,9 @@ class _BlocksPageState extends State<BlocksPage> {
     // Cargar bloques al iniciar la página
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<BlocksProvider>(context, listen: false).loadBlocks();
+      Provider.of<UserProvider>(context, listen: false).loadUserProfile();
     });
+    
   }
 
   @override
@@ -62,17 +66,22 @@ class _BlocksPageState extends State<BlocksPage> {
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<BlocksProvider>(context);
+    final userProvider = context.watch<UserProvider>();
+    final isAdmin = userProvider.user?.role.toUpperCase() == Role.ADMIN.name;
 
     return Scaffold(
       backgroundColor: Colors.white,
-      floatingActionButton: FloatingActionButton(
-        onPressed: _goToCreate,
-        backgroundColor: const Color.fromARGB(255, 143, 217, 159),
-        elevation: 6,
-        shape: const CircleBorder(),
-        child: const Icon(Icons.add, color: Colors.white, size: 30),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      floatingActionButton: isAdmin
+          ? FloatingActionButton(
+              onPressed: _goToCreate,
+              backgroundColor: const Color.fromARGB(255, 143, 217, 159),
+              elevation: 6,
+              shape: const CircleBorder(),
+              child: const Icon(Icons.add, color: Colors.white, size: 30),
+            )
+          : null,
+      floatingActionButtonLocation:
+          isAdmin ? FloatingActionButtonLocation.endFloat : null,
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
