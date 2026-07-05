@@ -115,6 +115,9 @@ class _BlocksPageState extends State<BlocksPage> {
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: TextField(
                 controller: _searchController,
+                onChanged: (value) {
+                  provider.searchBlocksByName(value);
+                },
                 decoration: InputDecoration(
                   hintText: 'Buscar',
                   prefixIcon: const Icon(Icons.search),

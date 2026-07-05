@@ -10,16 +10,32 @@ class BlocksProvider extends ChangeNotifier {
 
   BlocksProvider(this.repository);
 
+  List<BlockResponse> _allBlocks = [];
   List<BlockResponse> blocks = [];
+  String searchQuery = '';
 
   bool loading = false;
+
+  void _applyFilter() {
+    final normalizedQuery = searchQuery.trim().toLowerCase();
+
+    if (normalizedQuery.isEmpty) {
+      blocks = List.from(_allBlocks);
+      return;
+    }
+
+    blocks = _allBlocks
+        .where((block) => block.name.toLowerCase().contains(normalizedQuery))
+        .toList();
+  }
 
   Future<void> loadBlocks() async {
     loading = true;
     notifyListeners();
 
     try {
-      blocks = await repository.getAllBlocks();
+      _allBlocks = await repository.getAllBlocks();
+      _applyFilter();
     } catch (e) {
       print(e);
     }
@@ -45,7 +61,8 @@ class BlocksProvider extends ChangeNotifier {
   Future<void> createBlock(BlockRequest request) async {
     try {
       final block = await repository.createBlock(request);
-      blocks.add(block);
+      _allBlocks.add(block);
+      _applyFilter();
       notifyListeners();
     } catch (e) {
       print(e);
@@ -55,7 +72,8 @@ class BlocksProvider extends ChangeNotifier {
   Future<void> deleteBlock(int id) async {
     try {
       await repository.deleteBlock(id);
-      blocks.removeWhere((b) => b.id == id);
+      _allBlocks.removeWhere((b) => b.id == id);
+      _applyFilter();
       notifyListeners();
     } catch (e) {
       print(e);
@@ -66,14 +84,21 @@ class BlocksProvider extends ChangeNotifier {
     try {
       final updatedBlock = await repository.updateBlock(id, request);
 
-      final index = blocks.indexWhere((b) => b.id == id);
+      final index = _allBlocks.indexWhere((b) => b.id == id);
       if (index != -1) {
-        blocks[index] = updatedBlock;
+        _allBlocks[index] = updatedBlock;
       }
 
+      _applyFilter();
       notifyListeners();
     } catch (e) {
       print(e);
     }
+  }
+
+  void searchBlocksByName(String query) {
+    searchQuery = query;
+    _applyFilter();
+    notifyListeners();
   }
 }
