@@ -10,7 +10,33 @@ class AuthProvider extends ChangeNotifier {
   String? error;
   bool isAuthenticated = false;
 
+  static const String allowedEmailDomain = 'cecar.edu.co';
+
+  static bool isValidInstitutionalEmail(String email) {
+    final normalizedEmail = email.trim().toLowerCase();
+    final pattern = RegExp(r'^[a-z0-9._%+-]+@cecar\.edu\.co$');
+    return pattern.hasMatch(normalizedEmail);
+  }
+
+  static String? validateInstitutionalEmail(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'Por favor ingresa tu correo';
+    }
+
+    if (!isValidInstitutionalEmail(value)) {
+      return 'Solo se permiten correos terminados en @cecar.edu.co';
+    }
+
+    return null;
+  }
+
   Future<void> register(String name, String email, String password, String role) async {
+    if (!isValidInstitutionalEmail(email)) {
+      error = 'Solo se permiten correos terminados en @cecar.edu.co';
+      notifyListeners();
+      return;
+    }
+
     loading = true;
     notifyListeners();
 
@@ -29,6 +55,13 @@ class AuthProvider extends ChangeNotifier {
   }
 
   Future<void> login(String email, String password) async {
+    if (!isValidInstitutionalEmail(email)) {
+      error = 'Solo se permiten correos terminados en @cecar.edu.co';
+      isAuthenticated = false;
+      notifyListeners();
+      return;
+    }
+
     try {
       loading = true;
       error = null;
@@ -70,10 +103,8 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-
   Future<void> checkAuthStatus() async {
     try {
-      
       final hasValidToken = await repository.isAuthenticated();
       isAuthenticated = hasValidToken;
       notifyListeners();

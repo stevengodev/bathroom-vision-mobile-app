@@ -1,4 +1,5 @@
 import 'package:bathroom_vision/core/storage/secure_storage.dart';
+import 'package:bathroom_vision/features/auth/presentation/auth_provider.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 import 'auth_api.dart';
@@ -34,6 +35,13 @@ class AuthRepository {
 
     if (account == null) {
       throw Exception("Login cancelado");
+    }
+
+    final email = account.email;
+
+    if (!AuthProvider.isValidInstitutionalEmail(email)) {
+      await googleSignIn.signOut();
+      throw Exception("Solo se permiten correos terminados en @cecar.edu.co");
     }
 
     final auth = await account.authentication;

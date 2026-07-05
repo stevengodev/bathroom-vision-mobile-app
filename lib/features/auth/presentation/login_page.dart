@@ -102,13 +102,7 @@ class _LoginPageState extends State<LoginPage> {
                     border: OutlineInputBorder(),
                   ),
                   validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Por favor ingresa tu correo';
-                    }
-                    if (!value.contains('@')) {
-                      return 'Correo inválido';
-                    }
-                    return null;
+                    return AuthProvider.validateInstitutionalEmail(value);
                   },
                   enabled: !authProvider.loading,
                 ),

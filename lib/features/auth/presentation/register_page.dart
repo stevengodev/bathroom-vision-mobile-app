@@ -120,10 +120,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     border: OutlineInputBorder(),
                   ),
                   validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Por favor ingresa tu correo';
-                    }
-                    return null;
+                    return AuthProvider.validateInstitutionalEmail(value);
                   },
                   enabled: !authProvider.loading,
                 ),

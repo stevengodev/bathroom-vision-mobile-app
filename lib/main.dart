@@ -68,7 +68,7 @@ Future<void> _firebaseBackgroundHandler(RemoteMessage message) async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  print("📩 BACKGROUND MESSAGE");
+  print("BACKGROUND MESSAGE");
   print(message.notification?.title);
   print(message.notification?.body);
 }
@@ -115,7 +115,7 @@ Future<void> main() async {
   // TOPIC
   await FirebaseMessaging.instance.subscribeToTopic("bathrooms");
 
-  print("✅ Suscrito a bathrooms");
+  print("Suscrito a bathrooms");
 
   // TOKEN
   final token = await FirebaseMessaging.instance.getToken();
