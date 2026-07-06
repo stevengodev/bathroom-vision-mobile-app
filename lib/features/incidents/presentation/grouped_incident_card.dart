@@ -22,7 +22,7 @@ class GroupedIncidentCard extends StatelessWidget {
 
     final dates = incidents.map((e) => e.reportedAt).toList();
 
-    final formatter = DateFormat('dd/MM/yyyy HH:mm', 'es');
+    final formatter = DateFormat('dd/MM/yyyy hh:mm a', 'es');
 
     return Card(
       margin: const EdgeInsets.only(bottom: 16),

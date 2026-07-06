@@ -233,7 +233,7 @@ class _NavigationPageState extends State<NavigationPage>
                   if (user.role == Role.ADMIN.name) _card(Icons.cleaning_services, "Limpiezas", Colors.orangeAccent, () => Navigator.pushNamed(context, '/horarios-limpiezas')),
                   if (user.role == Role.CLEANER.name) _card(Icons.schedule, "Mis Limpiezas", Colors.purpleAccent, () => Navigator.pushNamed(context, '/horarios-limpiezas/me')),
                   if (user.role == Role.ADMIN.name) _card(Icons.people, "Usuarios", Colors.deepOrangeAccent, () => Navigator.pushNamed(context, '/gestionar-usuarios')),
-                  _card(Icons.build, "Mantenimientos", Colors.tealAccent[700]!, () => Navigator.pushNamed(context, '/mantenimientos')),
+                  if (user.role == Role.ADMIN.name || user.role == Role.MAINTAINER.name) _card(Icons.build, "Mantenimientos", Colors.tealAccent[700]!, () => Navigator.pushNamed(context, '/mantenimientos')),
                   _card(Icons.report_problem, "Incidencias", Colors.amber, () => Navigator.pushNamed(context, '/incidencias')),
                 ],
               ),
