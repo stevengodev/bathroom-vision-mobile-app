@@ -33,71 +33,107 @@ class _AnalyticsDashboardScreenState extends State<AnalyticsDashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.grey[100],
-      appBar: AppBar(
-        title: const Text('Analítica y Rendimiento'),
-        backgroundColor: Colors.indigoAccent,
-        foregroundColor: Colors.white,
-      ),
-      body: Consumer<AnalyticsProvider>(
-        builder: (context, provider, child) {
-          if (provider.isLoading) {
-            return const Center(child: CircularProgressIndicator());
-          }
+    return DefaultTabController(
+      length: 3,
+      child: Scaffold(
+        backgroundColor: Colors.grey[100],
+        appBar: AppBar(
+          title: const Text('Analítica de uso'),
+          backgroundColor: Colors.indigoAccent,
+          foregroundColor: Colors.white,
+          bottom: const TabBar(
+            labelColor: Colors.white,
+            unselectedLabelColor: Colors.white70,
+            indicatorColor: Colors.white,
+            tabs: [
+              Tab(text: 'Resumen'),
+              Tab(text: 'Incidencias'),
+              Tab(text: 'Mantenimiento'),
+            ],
+          ),
+        ),
+        body: Consumer<AnalyticsProvider>(
+          builder: (context, provider, child) {
+            if (provider.isLoading) {
+              return const Center(child: CircularProgressIndicator());
+            }
 
-          if (provider.errorMessage != null) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+            if (provider.errorMessage != null) {
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.error_outline, color: Colors.red, size: 48),
+                    const SizedBox(height: 16),
+                    Text('Error: \${provider.errorMessage}'),
+                    TextButton(
+                      onPressed: () => provider.loadAnalyticsData(),
+                      child: const Text('Reintentar'),
+                    ),
+                  ],
+                ),
+              );
+            }
+
+            if (provider.dashboardData == null) {
+              return const Center(child: Text('No hay datos disponibles.'));
+            }
+
+            return RefreshIndicator(
+              onRefresh: () => provider.loadAnalyticsData(),
+              child: TabBarView(
                 children: [
-                  const Icon(Icons.error_outline, color: Colors.red, size: 48),
-                  const SizedBox(height: 16),
-                  Text('Error: ${provider.errorMessage}'),
-                  TextButton(
-                    onPressed: () => provider.loadAnalyticsData(),
-                    child: const Text('Reintentar'),
+                  // Pestaña 1: Resumen
+                  SingleChildScrollView(
+                    padding: const EdgeInsets.all(16.0),
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildSectionTitle('Resumen General'),
+                        _buildOverviewCards(provider.dashboardData!),
+                      ],
+                    ),
+                  ),
+                  // Pestaña 2: Incidencias
+                  SingleChildScrollView(
+                    padding: const EdgeInsets.all(16.0),
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildSectionTitle('Incidencias'),
+                        _buildIncidentFilter(provider),
+                        const SizedBox(height: 12),
+                        if (provider.incidentData != null && provider.incidentData!.items.isNotEmpty)
+                          _buildIncidentBarChart(provider.incidentData!)
+                        else
+                          const Text('No hay datos de incidencias.'),
+                      ],
+                    ),
+                  ),
+                  // Pestaña 3: Mantenimientos
+                  SingleChildScrollView(
+                    padding: const EdgeInsets.all(16.0),
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildSectionTitle('Mantenimientos'),
+                        _buildMaintenanceFilters(provider, context),
+                        const SizedBox(height: 12),
+                        if (provider.maintenanceData != null)
+                          _buildMaintenancePieChart(provider.maintenanceData!)
+                        else
+                          const Text('No hay datos de mantenimiento.'),
+                      ],
+                    ),
                   ),
                 ],
               ),
             );
-          }
-
-          if (provider.dashboardData == null) {
-            return const Center(child: Text('No hay datos disponibles.'));
-          }
-
-          return RefreshIndicator(
-            onRefresh: () => provider.loadAnalyticsData(),
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(16.0),
-              physics: const AlwaysScrollableScrollPhysics(),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildSectionTitle('Resumen General'),
-                  _buildOverviewCards(provider.dashboardData!),
-                  const SizedBox(height: 24),
-                  _buildSectionTitle('Incidencias'),
-                  _buildIncidentFilter(provider),
-                  const SizedBox(height: 12),
-                  if (provider.incidentData != null && provider.incidentData!.items.isNotEmpty)
-                    _buildIncidentBarChart(provider.incidentData!)
-                  else
-                    const Text('No hay datos de incidencias.'),
-                  const SizedBox(height: 24),
-                  _buildSectionTitle('Mantenimientos'),
-                  _buildMaintenanceFilters(provider, context),
-                  const SizedBox(height: 12),
-                  if (provider.maintenanceData != null)
-                    _buildMaintenancePieChart(provider.maintenanceData!)
-                  else
-                    const Text('No hay datos de mantenimiento.'),
-                ],
-              ),
-            ),
-          );
-        },
+          },
+        ),
       ),
     );
   }
@@ -123,7 +159,7 @@ class _AnalyticsDashboardScreenState extends State<AnalyticsDashboardScreen> {
       children: [
         _buildStatCard('Total Baños', dashboardData.totalBathrooms.toString(), Colors.blue, Icons.bathroom),
         _buildStatCard('Disponibles', dashboardData.availableBathrooms.toString(), Colors.green, Icons.check_circle),
-        _buildStatCard('Ocupados', dashboardData.occupiedBathrooms.toString(), Colors.orange, Icons.people),
+        _buildStatCard('En Limpieza', dashboardData.occupiedBathrooms.toString(), Colors.orange, Icons.people),
         _buildStatCard('En Mantenimiento', dashboardData.maintenanceBathrooms.toString(), Colors.purple, Icons.build),
         _buildStatCard('Incidencias Activas', dashboardData.activeIncidents.toString(), Colors.red, Icons.report_problem),
         _buildStatCard('Mantenimientos Abiertos', dashboardData.openMaintenances.toString(), Colors.deepOrange, Icons.warning),
