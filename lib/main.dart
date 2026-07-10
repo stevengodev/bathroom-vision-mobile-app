@@ -38,6 +38,11 @@ import 'package:bathroom_vision/features/incidents/data/incident_repository.dart
 import 'package:bathroom_vision/features/incidents/presentation/incident_provider.dart';
 import 'package:bathroom_vision/features/incidents/presentation/pending_incidents_page.dart';
 
+import 'package:bathroom_vision/features/analytics/data/datasources/analytics_remote_datasource.dart';
+import 'package:bathroom_vision/features/analytics/data/repositories/analytics_repository_impl.dart';
+import 'package:bathroom_vision/features/analytics/presentation/providers/analytics_provider.dart';
+import 'package:bathroom_vision/features/analytics/presentation/screens/analytics_dashboard_screen.dart';
+
 import 'package:bathroom_vision/shared/views/navigation_page.dart';
 
 import 'package:flutter/material.dart';
@@ -195,6 +200,10 @@ Future<void> main() async {
         MaintenanceApi(apiClient),
       );
 
+  final analyticsRepository = AnalyticsRepositoryImpl(
+    AnalyticsRemoteDataSource(apiClient),
+  );
+
   runApp(
     MultiProvider(
       providers: [
@@ -228,6 +237,12 @@ Future<void> main() async {
         ChangeNotifierProvider(
           create: (_) => MaintenanceProvider(
             maintenanceRepository,
+          ),
+        ),
+
+        ChangeNotifierProvider(
+          create: (_) => AnalyticsProvider(
+            analyticsRepository,
           ),
         ),
       ],
@@ -292,6 +307,9 @@ class MyApp extends StatelessWidget {
 
         '/gestionar-usuarios': (_) =>
             const ManageUserPage(),
+
+        '/analiticas': (_) =>
+            const AnalyticsDashboardScreen(),
       },
     );
   }

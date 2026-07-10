@@ -235,6 +235,7 @@ class _NavigationPageState extends State<NavigationPage>
                   if (user.role == Role.ADMIN.name) _card(Icons.people, "Usuarios", Colors.deepOrangeAccent, () => Navigator.pushNamed(context, '/gestionar-usuarios')),
                   if (user.role == Role.ADMIN.name || user.role == Role.MAINTAINER.name) _card(Icons.build, "Mantenimientos", Colors.tealAccent[700]!, () => Navigator.pushNamed(context, '/mantenimientos')),
                   _card(Icons.report_problem, "Incidencias", Colors.amber, () => Navigator.pushNamed(context, '/incidencias')),
+                  if (user.role == Role.ADMIN.name) _card(Icons.analytics, "Analítica", Colors.indigoAccent, () => Navigator.pushNamed(context, '/analiticas')),
                 ],
               ),
             ),
