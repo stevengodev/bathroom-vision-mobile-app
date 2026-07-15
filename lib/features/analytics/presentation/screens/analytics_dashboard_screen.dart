@@ -319,8 +319,12 @@ class _AnalyticsDashboardScreenState extends State<AnalyticsDashboardScreen> {
   }
 
   Widget _buildIncidentBarChart(dynamic incidentData) {
+    String xAxisName = 'ID de Baños';
+    if (incidentData.groupBy == 'block') xAxisName = 'Bloques';
+    if (incidentData.groupBy == 'category') xAxisName = 'Categorías';
+
     return Container(
-      height: 250,
+      height: 280,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -335,6 +339,11 @@ class _AnalyticsDashboardScreenState extends State<AnalyticsDashboardScreen> {
           titlesData: FlTitlesData(
             show: true,
             bottomTitles: AxisTitles(
+              axisNameWidget: Padding(
+                padding: const EdgeInsets.only(top: 8.0),
+                child: Text(xAxisName, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+              ),
+              axisNameSize: 24,
               sideTitles: SideTitles(
                 showTitles: true,
                 reservedSize: 32,
@@ -359,7 +368,11 @@ class _AnalyticsDashboardScreenState extends State<AnalyticsDashboardScreen> {
                 },
               ),
             ),
-            leftTitles: const AxisTitles(sideTitles: SideTitles(showTitles: true, reservedSize: 28)),
+            leftTitles: AxisTitles(
+              axisNameWidget: const Text('Incidencias', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+              axisNameSize: 24,
+              sideTitles: const SideTitles(showTitles: true, reservedSize: 28),
+            ),
             topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
             rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
           ),

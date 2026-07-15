@@ -229,7 +229,7 @@ class _NavigationPageState extends State<NavigationPage>
                 childAspectRatio: 1.4, 
                 children: [
                   _card(Icons.bathroom, "Baños", Colors.blueAccent, () => Navigator.push(context, MaterialPageRoute(builder: (_) => const BathroomsPage()))),
-                  _card(Icons.grid_view, "Bloques", Colors.purpleAccent, () => Navigator.push(context, MaterialPageRoute(builder: (_) => const BlocksPage()))),
+                  if (user.role == Role.ADMIN.name) _card(Icons.grid_view, "Bloques", Colors.purpleAccent, () => Navigator.push(context, MaterialPageRoute(builder: (_) => const BlocksPage()))),
                   if (user.role == Role.ADMIN.name) _card(Icons.cleaning_services, "Limpiezas", Colors.orangeAccent, () => Navigator.pushNamed(context, '/horarios-limpiezas')),
                   if (user.role == Role.CLEANER.name) _card(Icons.schedule, "Mis Limpiezas", Colors.purpleAccent, () => Navigator.pushNamed(context, '/horarios-limpiezas/me')),
                   if (user.role == Role.ADMIN.name) _card(Icons.people, "Usuarios", Colors.deepOrangeAccent, () => Navigator.pushNamed(context, '/gestionar-usuarios')),
