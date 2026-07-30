@@ -120,129 +120,97 @@ class _CleaningScheduleListPageState extends State<CleaningScheduleListPage> {
           : CustomScrollView(
               slivers: [
                 SliverAppBar(
-                  expandedHeight: 320,
-                  collapsedHeight: 100,
+                  expandedHeight: 180,
+                  collapsedHeight: 80,
                   pinned: true,
                   stretch: true,
                   backgroundColor: const Color.fromARGB(255, 12, 90, 6),
                   shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.vertical(bottom: Radius.circular(40)),
+                    borderRadius: BorderRadius.vertical(bottom: Radius.circular(30)),
                   ),
                   flexibleSpace: FlexibleSpaceBar(
                     background: SafeArea(
                       bottom: false,
                       child: Padding(
-                        padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
+                        padding: const EdgeInsets.fromLTRB(20, 10, 20, 15),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.end,
                           children: [
                             // Título
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Text(
-                                  "Horarios",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.w900,
-                                  ),
+                            const Center(
+                              child: Text(
+                                "Horarios",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w900,
                                 ),
-                              ],
+                              ),
                             ),
-                            const SizedBox(height: 16),
+                            const SizedBox(height: 15),
 
                             Container(
+                              height: 45,
                               padding: const EdgeInsets.symmetric(horizontal: 16),
                               decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.1),
-                                borderRadius: BorderRadius.circular(16),
+                                color: Colors.white.withOpacity(0.15),
+                                borderRadius: BorderRadius.circular(12),
                                 border: Border.all(color: Colors.white24),
                               ),
                               child: DropdownButtonHideUnderline(
-                              child: DropdownButton<String?>(
-                                value: selectedBlock,
-                                dropdownColor: const Color.fromARGB(255, 255, 255, 255),
-                                icon: const Icon(Icons.expand_more, color: Colors.white60),
-                                isExpanded: true,
-                                hint: const Text(
-                                  "Todos los Bloques",
-                                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                                ),
-                                style: const TextStyle(
-                                  color: Color.fromARGB(255, 0, 0, 0),
-                                  fontWeight: FontWeight.bold,
-                                ),
-                                items: [
-                                  const DropdownMenuItem<String?>(
-                                    value: null,
-                                    child: Text("Todos los Bloques"),
+                                child: DropdownButton<String?>(
+                                  value: selectedBlock,
+                                  dropdownColor: const Color.fromARGB(255, 255, 255, 255),
+                                  icon: const Icon(Icons.expand_more, color: Colors.white60),
+                                  isExpanded: true,
+                                  hint: const Text(
+                                    "Todos los Bloques",
+                                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                                   ),
-                                  ...blocks.map(
-                                    (b) => DropdownMenuItem<String?>(
-                                      value: b,
-                                      child: Text(" $b"),
+                                  style: const TextStyle(
+                                    color: Color.fromARGB(255, 0, 0, 0),
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  items: [
+                                    const DropdownMenuItem<String?>(
+                                      value: null,
+                                      child: Text("Todos los Bloques"),
                                     ),
-                                  ),
-                                ],
-                                onChanged: (v) => setState(() => selectedBlock = v),
+                                    ...blocks.map(
+                                      (b) => DropdownMenuItem<String?>(
+                                        value: b,
+                                        child: Text(" $b"),
+                                      ),
+                                    ),
+                                  ],
+                                  onChanged: (v) => setState(() => selectedBlock = v),
+                                ),
                               ),
                             ),
-                            ),
-                            const SizedBox(height: 12),
+                            const SizedBox(height: 10),
 
-                            Container(
-                              padding: const EdgeInsets.all(16),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.1),
-                                borderRadius: BorderRadius.circular(20),
-                                border: Border.all(color: Colors.white24),
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(
-                                        "FILTRO DE RANGO",
-                                        style: TextStyle(
-                                          color: const Color.fromARGB(255, 247, 247, 247),
-                                          fontSize: 10,
-                                          fontWeight: FontWeight.w900,
-                                          letterSpacing: 1.2,
-                                        ),
-                                      ),
-                                      const Icon(Icons.date_range, size: 16, color: Color.fromARGB(237, 255, 255, 255)),
-                                    ],
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: _dateTapField(
+                                    label: "Desde",
+                                    date: startDate,
+                                    onTap: _selectStartDate,
                                   ),
-                                  const SizedBox(height: 10),
-                                  Row(
-                                    children: [
-                                      Expanded(
-                                        child: _dateTapField(
-                                          label: "Desde",
-                                          date: startDate,
-                                          onTap: _selectStartDate,
-                                        ),
-                                      ),
-                                      const Padding(
-                                        padding: EdgeInsets.symmetric(horizontal: 8),
-                                        child: Icon(Icons.arrow_forward, color: Color.fromARGB(237, 255, 255, 255), size: 16),
-                                      ),
-                                      Expanded(
-                                        child: _dateTapField(
-                                          label: "Hasta",
-                                          date: endDate,
-                                          onTap: _selectEndDate,
-                                        ),
-                                      ),
-                                    ],
+                                ),
+                                const Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 12),
+                                  child: Icon(Icons.arrow_forward_rounded, color: Colors.white70, size: 16),
+                                ),
+                                Expanded(
+                                  child: _dateTapField(
+                                    label: "Hasta",
+                                    date: endDate,
+                                    onTap: _selectEndDate,
                                   ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
                           ],
                         ),
@@ -277,40 +245,39 @@ class _CleaningScheduleListPageState extends State<CleaningScheduleListPage> {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+        height: 45,
+        padding: const EdgeInsets.symmetric(horizontal: 12),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.08),
+          color: Colors.white.withOpacity(0.15),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.white12),
+          border: Border.all(color: Colors.white24),
         ),
         child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    label.toUpperCase(),
-                    style: const TextStyle(
-                      color: Colors.white38,
-                      fontSize: 8,
-                      fontWeight: FontWeight.bold,
-                    ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  label.toUpperCase(),
+                  style: const TextStyle(
+                    color: Colors.white70,
+                    fontSize: 8,
+                    fontWeight: FontWeight.bold,
                   ),
-                  const SizedBox(height: 2),
-                  Text(
-                    "${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}",
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 13,
-                      fontWeight: FontWeight.bold,
-                    ),
+                ),
+                Text(
+                  "${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}",
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-            const Icon(Icons.edit_calendar_outlined, color: Colors.white24, size: 14),
+            const Icon(Icons.calendar_today_rounded, color: Colors.white70, size: 14),
           ],
         ),
       ),
