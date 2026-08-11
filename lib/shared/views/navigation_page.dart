@@ -66,6 +66,8 @@ class _NavigationPageState extends State<NavigationPage>
         return "Reporta o gestiona reparaciones y mantenimientos.";
       case "Incidencias":
         return "Consulta incidencias reportadas por los usuarios.";
+      case "Analítica":
+        return "Examina conjuntos de datos para extraer conclusiones sobre la información que contienen.";
       default:
         return "";
     }

@@ -249,7 +249,11 @@ class _UserProfilePageState extends State<UserProfilePage> {
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: OutlinedButton.icon(
                     onPressed: () {
-                      
+                      Navigator.pushNamedAndRemoveUntil(
+                      context,
+                      '/login',
+                      (route) => false,
+                    );
                     },
                     icon: const Icon(Icons.logout, color: Colors.red),
                     label: const Text(
