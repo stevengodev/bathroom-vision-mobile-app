@@ -587,7 +587,7 @@ class _CleaningScheduleListPageState extends State<CleaningScheduleListPage> {
               ),
             ),
 
-            // ❌ BOTÓN X (cerrar)
+            // Boton Cerrar
             Positioned(
               top: 8,
               right: 8,

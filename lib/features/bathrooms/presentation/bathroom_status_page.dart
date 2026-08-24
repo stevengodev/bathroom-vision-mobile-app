@@ -5,6 +5,7 @@ import 'package:bathroom_vision/features/bathrooms/models/bathroom_response.dart
 import 'package:bathroom_vision/features/bathrooms/presentation/bathroom_card.dart';
 import 'package:bathroom_vision/features/bathrooms/presentation/bathroom_provider.dart';
 import 'package:bathroom_vision/shared/enums/bathroom_status.dart';
+import 'package:bathroom_vision/features/bathrooms/presentation/bathrooms_page.dart';
 
 class BathroomStatusPage extends StatefulWidget {
   final BathroomResponse bathroom;
@@ -47,7 +48,19 @@ class _BathroomStatusPageState extends State<BathroomStatusPage> {
             selectedStatus.name,
           );
 
-      if (mounted) Navigator.pop(context, true);
+
+
+      if (mounted) {
+
+      Navigator.pushReplacement(
+    context,
+    MaterialPageRoute(
+      builder: (_) => const BathroomsPage(),
+    ),
+  );
+
+      } 
+      
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Error: $e")),

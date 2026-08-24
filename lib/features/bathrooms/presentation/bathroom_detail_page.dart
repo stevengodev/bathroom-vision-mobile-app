@@ -5,6 +5,7 @@ import 'package:bathroom_vision/features/bathrooms/presentation/bathroom_card.da
 import 'package:bathroom_vision/features/bathrooms/presentation/bathroom_form_page.dart';
 import 'package:bathroom_vision/features/bathrooms/presentation/bathroom_provider.dart';
 import 'package:bathroom_vision/features/bathrooms/presentation/bathroom_status_page.dart';
+import 'package:bathroom_vision/features/bathrooms/presentation/bathrooms_page.dart';
 import 'package:bathroom_vision/features/incidents/models/incident_request.dart';
 import 'package:bathroom_vision/features/incidents/presentation/incident_provider.dart';
 import 'package:bathroom_vision/shared/enums/role.dart';
@@ -217,11 +218,17 @@ class _BathroomDetailPageState extends State<BathroomDetailPage> {
                                   Navigator.pop(context, true);
                                 }
                               } catch (e) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text("Error al eliminar: $e"),
-                                  ),
-                                );
+                                final message = e.toString()
+                                    .replaceFirst('Exception: ', '');
+
+                                if (mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(message),
+                                      backgroundColor: Colors.red,
+                                    ),
+                                  );
+                                }
                               }
                             }
                           },
@@ -300,6 +307,14 @@ class _BathroomDetailPageState extends State<BathroomDetailPage> {
                                 context
                                     .read<IncidentProvider>()
                                     .loadIncidentsByBathroom(bathroom.id);
+
+                                Navigator.pushAndRemoveUntil(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => const BathroomsPage(),
+                                  ),
+                                  (route) => false,
+                                );
                               }
                             } catch (e) {
                               ScaffoldMessenger.of(context).showSnackBar(

@@ -3,11 +3,30 @@ import 'package:bathroom_vision/features/bathrooms/models/bathroom_request.dart'
 import 'package:bathroom_vision/features/bathrooms/models/bathroom_response.dart';
 import 'package:bathroom_vision/shared/enums/bathroom_status.dart';
 import 'package:bathroom_vision/shared/enums/gender.dart';
+import 'package:dio/dio.dart';
 
 class BathroomApi {
   final ApiClient apiClient;
 
   BathroomApi(this.apiClient);
+
+  String _extractErrorMessage(dynamic error) {
+    if (error is DioException) {
+      final data = error.response?.data;
+
+      if (data is Map) {
+        final detail = data['detail'] ?? data['message'] ?? data['error'];
+        if (detail != null && detail.toString().isNotEmpty) {
+          return detail.toString();
+        }
+      }
+
+      return error.response?.statusMessage ?? error.message ?? 'Error al eliminar el baño';
+    }
+
+    final text = error.toString();
+    return text.replaceFirst('Exception: ', '');
+  }
 
   Future<List<BathroomResponse>> getAllBathrooms() async {
     final response = await apiClient.dio.get("/api/bathrooms");
@@ -112,7 +131,13 @@ class BathroomApi {
   }
 
   Future<void> deleteBathroom(int id) async {
-    await apiClient.dio.delete("/api/bathrooms/$id");
+    try {
+      await apiClient.dio.delete("/api/bathrooms/$id");
+    } on DioException catch (e) {
+      throw Exception(_extractErrorMessage(e));
+    } catch (e) {
+      throw Exception(_extractErrorMessage(e));
+    }
   }
 
   Future<BathroomResponse> updateBathroomStatus(int id, String status) async {

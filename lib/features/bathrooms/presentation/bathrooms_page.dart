@@ -63,7 +63,7 @@ class _BathroomsPageState extends State<BathroomsPage> {
       context,
       MaterialPageRoute(
         builder: (_) =>
-            const BathroomFormPage(), // 👈 debes tener esta pantalla
+            const BathroomFormPage(),
       ),
     );
 
@@ -331,7 +331,7 @@ class _BathroomsPageState extends State<BathroomsPage> {
                   ),
                   const Expanded(
                     child: Text(
-                      'BAÑOVISIÓN',
+                      'BAÑOVISION',
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,

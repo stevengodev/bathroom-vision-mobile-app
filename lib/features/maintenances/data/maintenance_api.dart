@@ -2,11 +2,30 @@ import 'package:bathroom_vision/core/api/api_client.dart';
 import 'package:bathroom_vision/core/errors/api_exception.dart';
 import 'package:bathroom_vision/features/maintenances/models/maintenance_request.dart';
 import 'package:bathroom_vision/features/maintenances/models/maintenance_response.dart';
+import 'package:dio/dio.dart';
 
 class MaintenanceApi {
   final ApiClient apiClient;
 
   MaintenanceApi(this.apiClient);
+
+  String _extractErrorMessage(dynamic error) {
+    if (error is DioException) {
+      final data = error.response?.data;
+
+      if (data is Map) {
+        final detail = data['detail'] ?? data['message'] ?? data['error'];
+        if (detail != null && detail.toString().isNotEmpty) {
+          return detail.toString();
+        }
+      }
+
+      return error.response?.statusMessage ?? error.message ?? 'Error al eliminar mantenimiento';
+    }
+
+    final text = error.toString();
+    return text.replaceFirst('Exception: ', '');
+  }
 
   Future<List<MaintenanceResponse>> getAll({String? status}) async {
     dynamic queryParameters;
@@ -92,8 +111,13 @@ class MaintenanceApi {
   Future<void> delete(int id) async {
     try {
       await apiClient.dio.delete("/api/maintenances/$id");
+    } on DioException catch (e) {
+      throw ApiException(
+        _extractErrorMessage(e),
+        statusCode: e.response?.statusCode,
+      );
     } catch (e) {
-      throw ApiException("Error al eliminar mantenimiento");
+      throw ApiException(_extractErrorMessage(e));
     }
   }
 

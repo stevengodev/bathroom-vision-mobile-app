@@ -231,11 +231,32 @@ class MaintenanceDetailPage extends StatelessWidget {
               color: Colors.red,
               icon: Icons.delete,
               onPressed: () async {
-                await context.read<MaintenanceProvider>().deleteMaintenance(
-                  maintenance.id,
-                );
+                try {
+                  await context.read<MaintenanceProvider>().deleteMaintenance(
+                    maintenance.id,
+                  );
 
-                Navigator.pop(context, true);
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Mantenimiento eliminado correctamente'),
+                        backgroundColor: Colors.green,
+                      ),
+                    );
+                    Navigator.pop(context, true);
+                  }
+                } catch (e) {
+                  final message = e.toString().replaceFirst('Exception: ', '');
+
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(message),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  }
+                }
               },
             ),
           ],

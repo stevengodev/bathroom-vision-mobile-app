@@ -8,6 +8,7 @@ import 'package:bathroom_vision/features/blocks/models/block_response.dart';
 import 'package:bathroom_vision/features/blocks/presentation/blocks_provider.dart';
 import 'package:bathroom_vision/shared/enums/bathroom_status.dart';
 import 'package:bathroom_vision/shared/enums/gender.dart';
+import 'package:bathroom_vision/features/bathrooms/presentation/bathrooms_page.dart';
 
 class BathroomFormPage extends StatefulWidget {
   final int? id;
@@ -31,7 +32,7 @@ class _BathroomFormPageState extends State<BathroomFormPage> {
   void initState() {
     super.initState();
 
-    // 🔥 Precargar datos si es edición
+    // Precargar datos si es edición
     selectedGender = widget.bathroom?.gender;
     selectedStatus = widget.bathroom?.status;
     selectedBlockId = widget.bathroom?.blockId;
@@ -74,7 +75,16 @@ class _BathroomFormPageState extends State<BathroomFormPage> {
         );
       }
 
-      if (mounted) Navigator.pop(context, true);
+            if (mounted) {
+
+      Navigator.pushReplacement(
+    context,
+    MaterialPageRoute(
+      builder: (_) => const BathroomsPage(),
+    ),
+  );
+
+      } 
     } catch (e) {
       ScaffoldMessenger.of(
         context,
