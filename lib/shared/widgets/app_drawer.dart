@@ -13,7 +13,7 @@ class AppDrawer extends StatelessWidget {
             const SizedBox(height: 20),
 
             const Text(
-              "BAÑOVISIÓN",
+              "BAÑOVISION",
               style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,

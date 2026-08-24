@@ -78,7 +78,7 @@ class _RegisterPageState extends State<RegisterPage> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 const Text(
-                  "BAÑOVISIÓN",
+                  "BAÑOVISION",
                   style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
                 ),
 

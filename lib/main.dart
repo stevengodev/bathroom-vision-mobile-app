@@ -64,7 +64,7 @@ final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
 const AndroidNotificationChannel channel = AndroidNotificationChannel(
   'bathroom_channel',
   'Bathroom Notifications',
-  description: 'Canal de notificaciones de Bañovisión',
+  description: 'Canal de notificaciones de Bañovision',
   importance: Importance.max,
 );
 
@@ -143,7 +143,7 @@ Future<void> main() async {
       await flutterLocalNotificationsPlugin.show(
         notification.hashCode,
 
-        notification.title ?? "Bañovisión",
+        notification.title ?? "Bañovision",
 
         notification.body ?? "",
 
@@ -258,7 +258,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Bañovisión',
+      title: 'Bañovision',
 
       debugShowCheckedModeBanner: false,
 

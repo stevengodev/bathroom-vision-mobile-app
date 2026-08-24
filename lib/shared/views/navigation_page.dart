@@ -188,7 +188,7 @@ class _NavigationPageState extends State<NavigationPage>
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             const SizedBox(height: 10),
-            const Text("BAÑOVISIÓN", 
+            const Text("BAÑOVISION", 
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white)),
             const SizedBox(height: 10),
             

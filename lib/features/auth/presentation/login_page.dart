@@ -71,7 +71,7 @@ class _LoginPageState extends State<LoginPage> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 const Text(
-                  "BAÑOVISIÓN",
+                  "BAÑOVISION",
                   style: TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.bold,

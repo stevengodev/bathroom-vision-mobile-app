@@ -41,7 +41,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text(
-          'BAÑOVISIÓN',
+          'BAÑOVISION',
           style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1),
         ),
         backgroundColor: const Color(0xFF8FD99F),

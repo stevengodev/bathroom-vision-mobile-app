@@ -97,7 +97,7 @@ class _BlocksPageState extends State<BlocksPage> {
                   ),
                   const Expanded(
                     child: Text(
-                      'BAÑOVISIÓN',
+                      'BAÑOVISION',
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
