@@ -524,6 +524,16 @@ class _CleaningScheduleFormPageState extends State<CleaningScheduleFormPage> {
                       await provider.update(widget.schedule!.id, request);
                     }
 
+                    if (provider.error != null) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(provider.error!),
+                          backgroundColor: Colors.redAccent,
+                        ),
+                      );
+                      return;
+                    }
+
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content: Text(

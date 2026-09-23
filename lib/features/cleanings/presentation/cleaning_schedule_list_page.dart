@@ -441,8 +441,8 @@ class _CleaningScheduleListPageState extends State<CleaningScheduleListPage> {
   Widget _genderBadge(String gender) {
     Color color = Colors.purple;
     String text = "UNISEX";
-    if (gender == "MALE") { color = Colors.blue; text = "HOMBRES"; }
-    if (gender == "FEMALE") { color = Colors.pink; text = "MUJERES"; }
+    if (gender == "MASCULINO") { color = Colors.blue; text = "HOMBRES"; }
+    if (gender == "FEMENINO") { color = Colors.pink; text = "MUJERES"; }
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
@@ -510,6 +510,7 @@ class _CleaningScheduleListPageState extends State<CleaningScheduleListPage> {
                           style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
                       ),
+                      _genderBadge(s.bathroom.gender.name),
                     ],
                   ),
 

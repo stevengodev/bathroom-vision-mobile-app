@@ -2,6 +2,7 @@ import 'package:bathroom_vision/core/api/api_client.dart';
 import 'package:bathroom_vision/core/errors/api_exception.dart';
 import 'package:bathroom_vision/features/cleanings/models/cleaning_schedule_request.dart';
 import 'package:bathroom_vision/features/cleanings/models/cleaning_schedule_response.dart';
+import 'package:dio/dio.dart';
 
 class CleaningScheduleApi {
   final ApiClient apiClient;
@@ -98,6 +99,11 @@ class CleaningScheduleApi {
           statusCode: response.statusCode,
         );
       }
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 409) {
+        throw ApiException("El horario tiene conflictos con otro existente.", statusCode: 409);
+      }
+      throw ApiException("Error al crear horario");
     } catch (e) {
       throw ApiException("Error al crear horario");
     }
@@ -118,6 +124,11 @@ class CleaningScheduleApi {
           statusCode: response.statusCode,
         );
       }
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 409) {
+        throw ApiException("El horario tiene conflictos con otro existente.", statusCode: 409);
+      }
+      throw ApiException("Error al actualizar");
     } catch (e) {
       throw ApiException("Error al actualizar");
     }

@@ -33,6 +33,7 @@ class CleaningScheduleProvider extends ChangeNotifier {
   }
 
   Future<void> create(CleaningScheduleRequest request) async {
+    error = null;
     try {
       final newSchedule = await repository.create(request);
       schedules.add(newSchedule);
@@ -45,6 +46,7 @@ class CleaningScheduleProvider extends ChangeNotifier {
   }
 
   Future<void> update(int id, CleaningScheduleRequest request) async {
+    error = null;
     try {
       final updated = await repository.update(id, request);
 

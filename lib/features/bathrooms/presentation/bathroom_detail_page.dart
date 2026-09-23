@@ -42,6 +42,7 @@ class _BathroomDetailPageState extends State<BathroomDetailPage> {
     final bathroom = widget.bathroom;
     final userProvider = context.watch<UserProvider>();
     final isAdmin = userProvider.user?.role.toUpperCase() == Role.ADMIN.name;
+    final isUser = userProvider.user?.role.toUpperCase() == 'USER';
 
     return Scaffold(
       appBar: AppBar(title: const Text("Detalles del baño")),
@@ -269,30 +270,31 @@ class _BathroomDetailPageState extends State<BathroomDetailPage> {
                     ],
                   ),
 
-                const SizedBox(height: 20),
-
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () async {
-                      await Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) =>
-                              BathroomStatusPage(bathroom: bathroom),
-                        ),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.orange,
-                      foregroundColor: Colors.white,
-                    ),
-                    child: const Text(
-                      "ACTUALIZAR ESTADO",
-                      style: TextStyle(color: Colors.black),
+                if (!isUser) ...[
+                  const SizedBox(height: 20),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) =>
+                                BathroomStatusPage(bathroom: bathroom),
+                          ),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.orange,
+                        foregroundColor: Colors.white,
+                      ),
+                      child: const Text(
+                        "ACTUALIZAR ESTADO",
+                        style: TextStyle(color: Colors.black),
+                      ),
                     ),
                   ),
-                ),
+                ],
 
                 const SizedBox(height: 20),
 
