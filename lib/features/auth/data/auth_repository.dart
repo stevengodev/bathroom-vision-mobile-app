@@ -19,7 +19,8 @@ class AuthRepository {
   AuthRepository(this.authApi, this.storage);
 
   Future<void> register(String name, String email, String password, String role) async {
-    await authApi.register(name, email, password, role);
+    final jwt = await authApi.register(name, email, password, role);
+    await storage.saveToken(jwt);
   }
 
   Future<void> login(String email, String password) async {

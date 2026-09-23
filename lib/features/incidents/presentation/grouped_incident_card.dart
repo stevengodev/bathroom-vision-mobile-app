@@ -99,7 +99,28 @@ class GroupedIncidentCard extends StatelessWidget {
                     ),
                     padding: const EdgeInsets.symmetric(vertical: 14),
                   ),
-                  onPressed: onResolve,
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (ctx) => AlertDialog(
+                        title: const Text("Confirmar acción"),
+                        content: const Text("¿Estás seguro de que deseas marcar como resueltos todos estos reportes?"),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(ctx),
+                            child: const Text("Cancelar", style: TextStyle(color: Colors.grey)),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              Navigator.pop(ctx);
+                              onResolve();
+                            },
+                            child: const Text("Confirmar", style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold)),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
                   child: const Text(
                     "RESOLVER TODOS",
                     style: TextStyle(color: Colors.white),

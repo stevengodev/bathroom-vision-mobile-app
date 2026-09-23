@@ -11,6 +11,8 @@ class BlocksProvider extends ChangeNotifier {
   BlocksProvider(this.repository);
 
   List<BlockResponse> _allBlocks = [];
+  List<BlockResponse> get allBlocks => _allBlocks;
+  
   List<BlockResponse> blocks = [];
   String searchQuery = '';
 

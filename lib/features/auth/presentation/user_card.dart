@@ -27,6 +27,8 @@ class UserCard extends StatelessWidget {
         return Colors.orange;
       case Role.ADMIN:
         return Colors.blue;
+      case Role.USER:
+        return Colors.grey;
     }
   }
 

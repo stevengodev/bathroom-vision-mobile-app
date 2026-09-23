@@ -54,6 +54,25 @@ class _BathroomFormPageState extends State<BathroomFormPage> {
       return;
     }
 
+    final bathroomProvider = context.read<BathroomProvider>();
+
+    // Validar si ya existe un baño con la misma combinación
+    final isDuplicate = bathroomProvider.bathrooms.any((b) =>
+        b.blockId == selectedBlockId &&
+        b.floor == selectedFloor &&
+        b.gender == selectedGender &&
+        b.id != widget.id);
+
+    if (isDuplicate) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Ya existe un baño en este bloque, piso y con este género"),
+          backgroundColor: Colors.redAccent,
+        ),
+      );
+      return;
+    }
+
     setState(() => loading = true);
 
     final request = BathroomRequest(

@@ -1,7 +1,8 @@
 enum Role {
   ADMIN,
   MAINTAINER,
-  CLEANER;
+  CLEANER,
+  USER;
 
   String get displayName {
     switch (this) {
@@ -11,6 +12,18 @@ enum Role {
         return 'Mantenimiento';
       case Role.CLEANER:
         return 'Limpieza';
+      case Role.USER:
+        return 'Usuario';
+    }
+  }
+
+  static String getDisplayNameFromString(String roleStr) {
+    switch (roleStr.toUpperCase()) {
+      case 'ADMIN': return 'Administrador';
+      case 'MAINTAINER': return 'Mantenimiento';
+      case 'CLEANER': return 'Limpieza';
+      case 'USER': return 'Usuario';
+      default: return roleStr;
     }
   }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:bathroom_vision/shared/enums/role.dart';
 
 class UserHeader extends StatelessWidget {
   final String userName;
@@ -66,7 +67,7 @@ class UserHeader extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  'Rol: $role',
+                  'Rol: ${Role.getDisplayNameFromString(role)}',
                   style: TextStyle(
                     fontSize: 12,
                     color: Colors.grey[600],

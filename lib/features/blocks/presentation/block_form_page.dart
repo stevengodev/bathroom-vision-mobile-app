@@ -36,13 +36,30 @@ class _BlockFormPageState extends State<BlockFormPage> {
   }
 
   Future<void> _save() async {
-    if (nameController.text.isEmpty) return;
+    final name = nameController.text.trim();
+    if (name.isEmpty) return;
 
     final provider = Provider.of<BlocksProvider>(context, listen: false);
+
+    // Validar si el bloque ya existe (ignorando mayúsculas/minúsculas)
+    final isDuplicate = provider.allBlocks.any(
+      (b) => b.name.trim().toLowerCase() == name.toLowerCase() && b.id != widget.id
+    );
+
+    if (isDuplicate) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Ya existe un bloque con ese nombre'),
+          backgroundColor: Colors.redAccent,
+        ),
+      );
+      return;
+    }
+
     setState(() => loading = true);
 
     final request = BlockRequest(
-      name: nameController.text,
+      name: name,
       numberOfFloors: int.tryParse(floorsController.text) ?? 0,
     );
 

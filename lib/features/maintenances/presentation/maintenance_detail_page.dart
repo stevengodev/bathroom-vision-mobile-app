@@ -231,6 +231,28 @@ class MaintenanceDetailPage extends StatelessWidget {
               color: Colors.red,
               icon: Icons.delete,
               onPressed: () async {
+                final confirm = await showDialog<bool>(
+                  context: context,
+                  builder: (ctx) => AlertDialog(
+                    title: const Text("Confirmar eliminación"),
+                    content: const Text("¿Estás seguro de que deseas eliminar esta solicitud de mantenimiento?"),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(ctx, false),
+                        child: const Text("Cancelar", style: TextStyle(color: Colors.grey)),
+                      ),
+                      TextButton(
+                        onPressed: () => Navigator.pop(ctx, true),
+                        child: const Text("Eliminar", style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+                      ),
+                    ],
+                  ),
+                );
+
+                if (confirm != true) return;
+
+                if (!context.mounted) return;
+
                 try {
                   await context.read<MaintenanceProvider>().deleteMaintenance(
                     maintenance.id,

@@ -160,7 +160,7 @@ class _NavigationPageState extends State<NavigationPage>
             ),
           ),
           const SizedBox(height: 10),
-          Text("Rol: ${user.role}", style: const TextStyle(fontSize: 12, color: Colors.black54, fontWeight: FontWeight.bold)),
+          Text("Rol: ${Role.getDisplayNameFromString(user.role)}", style: const TextStyle(fontSize: 12, color: Colors.black54, fontWeight: FontWeight.bold)),
           const Divider(height: 30, color: Colors.black12),
           ListTile(
             leading: const Icon(Icons.person, size: 20, color: Colors.black87),
@@ -218,7 +218,7 @@ class _NavigationPageState extends State<NavigationPage>
             
             const SizedBox(height: 10),
             Text(
-              "Rol: ${user.role}", 
+              "Rol: ${Role.getDisplayNameFromString(user.role)}",
               style: const TextStyle(fontSize: 13, color: Colors.white70, fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 20),

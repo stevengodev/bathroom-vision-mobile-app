@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:bathroom_vision/shared/widgets/error_flash_card.dart';
+import 'package:bathroom_vision/shared/enums/role.dart';
 import 'user_provider.dart';
 
 class UserProfilePage extends StatefulWidget {
@@ -160,7 +161,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
                             ),
                             const SizedBox(width: 6),
                             Text(
-                              role.toUpperCase(),
+                              Role.getDisplayNameFromString(role).toUpperCase(),
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 13,
