@@ -336,13 +336,7 @@ class _BathroomDetailPageState extends State<BathroomDetailPage> {
                                     .read<IncidentProvider>()
                                     .loadIncidentsByBathroom(bathroom.id);
 
-                                Navigator.pushAndRemoveUntil(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) => const BathroomsPage(),
-                                  ),
-                                  (route) => false,
-                                );
+                                  Navigator.pop(context, true);
                               }
                             } catch (e) {
                               ScaffoldMessenger.of(context).showSnackBar(

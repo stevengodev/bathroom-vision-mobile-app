@@ -140,7 +140,7 @@ class BlockDetailPage extends StatelessWidget {
       );
 
       // Regresar a la lista de bloques
-      Navigator.pushNamed(context, '/blocks');
+      Navigator.pop(context, true);
     } catch (e) {
       if (!context.mounted) return;
 
@@ -177,7 +177,7 @@ class BlockDetailPage extends StatelessWidget {
     );
 
     if (result != null) {
-      Navigator.pushNamed(context, '/blocks');
+      Navigator.pop(context, true);
     }
   }
 

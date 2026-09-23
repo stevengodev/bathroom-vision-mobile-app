@@ -72,7 +72,7 @@ class _BlockFormPageState extends State<BlockFormPage> {
         await provider.updateBlock(widget.id!, request);
       }
 
-      Navigator.pushNamed(context, '/blocks');
+      Navigator.pop(context, true);
     } catch (e) {
       // Manejo de error simple
       ScaffoldMessenger.of(

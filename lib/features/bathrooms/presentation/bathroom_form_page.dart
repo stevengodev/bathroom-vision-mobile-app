@@ -95,15 +95,8 @@ class _BathroomFormPageState extends State<BathroomFormPage> {
       }
 
             if (mounted) {
-
-      Navigator.pushReplacement(
-    context,
-    MaterialPageRoute(
-      builder: (_) => const BathroomsPage(),
-    ),
-  );
-
-      } 
+              Navigator.pop(context, true);
+            }
     } catch (e) {
       ScaffoldMessenger.of(
         context,
