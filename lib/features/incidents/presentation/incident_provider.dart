@@ -115,9 +115,13 @@ class IncidentProvider extends ChangeNotifier {
     try {
       await repository.updateStatusIncident(incidentMessageId, bathroomId);
 
-      final index = incidents.indexWhere((i) => i.incidentMessage.id == incidentMessageId);
-      if (index != -1) {
-        incidents[index] = incidents[index].copyWith(status: "RESOLVED");
+      bool updated = false;
+      for (int i = 0; i < incidents.length; i++) {
+        if (incidents[i].incidentMessage.id == incidentMessageId &&
+            incidents[i].bathroom.id == bathroomId) {
+          incidents[i] = incidents[i].copyWith(status: "RESOLVED");
+          updated = true;
+        }
       }
 
       if (selectedIncident?.incidentMessage.id == incidentMessageId) {

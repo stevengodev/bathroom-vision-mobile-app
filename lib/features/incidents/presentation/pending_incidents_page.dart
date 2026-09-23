@@ -60,8 +60,11 @@ class _PendingIncidentsPageState extends State<PendingIncidentsPage> {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<IncidentProvider>();
+    final userProvider = context.watch<UserProvider>();
+    
+    final isUser = userProvider.user?.role.toUpperCase() == 'USER';
 
-    final pendingIncidents = provider.incidents;
+    final pendingIncidents = provider.incidents.where((i) => i.status != "RESOLVED").toList();
 
     /// AGRUPAR INCIDENTES
     // final Map<String, List<dynamic>> grouped = {};
@@ -95,6 +98,7 @@ class _PendingIncidentsPageState extends State<PendingIncidentsPage> {
                 return GroupedIncidentCard(
                   incidents: group,
                   statusColor: getIncidentColor(first.status),
+                  showResolveButton: !isUser,
                   onResolve: () async {
                     await context.read<IncidentProvider>().resolveIncident(
                       first.incidentMessage.id!,

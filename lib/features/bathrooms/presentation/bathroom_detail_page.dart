@@ -184,6 +184,32 @@ class _BathroomDetailPageState extends State<BathroomDetailPage> {
                       Expanded(
                         child: ElevatedButton.icon(
                           onPressed: () async {
+                            if (provider.incidents.isNotEmpty) {
+                              ScaffoldMessenger.of(context)
+                                ..hideCurrentSnackBar()
+                                ..showSnackBar(
+                                  const SnackBar(
+                                    content: Row(
+                                      children: [
+                                        Icon(
+                                          Icons.warning_amber_rounded,
+                                          color: Colors.white,
+                                        ),
+                                        SizedBox(width: 10),
+                                        Expanded(
+                                          child: Text(
+                                            "No se puede eliminar este baño porque tiene incidentes asociados.",
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    backgroundColor: Colors.orange,
+                                    duration: Duration(seconds: 4),
+                                  ),
+                                );
+                              return;
+                            }
+
                             final confirm = await showDialog<bool>(
                               context: context,
                               builder: (_) => AlertDialog(

@@ -6,12 +6,14 @@ class GroupedIncidentCard extends StatelessWidget {
   final List<IncidentResponse> incidents;
   final Color statusColor;
   final VoidCallback onResolve;
+  final bool showResolveButton;
 
   const GroupedIncidentCard({
     super.key,
     required this.incidents,
     required this.statusColor,
     required this.onResolve,
+    this.showResolveButton = true,
   });
 
   @override
@@ -85,25 +87,26 @@ class GroupedIncidentCard extends StatelessWidget {
 
             if (dates.length > 3) Text("+${dates.length - 3} más"),
 
-            const SizedBox(height: 16),
-
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
+            if (showResolveButton) ...[
+              const SizedBox(height: 16),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    padding: const EdgeInsets.symmetric(vertical: 14),
                   ),
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                ),
-                onPressed: onResolve,
-                child: const Text(
-                  "RESOLVER TODOS",
-                  style: TextStyle(color: Colors.white),
+                  onPressed: onResolve,
+                  child: const Text(
+                    "RESOLVER TODOS",
+                    style: TextStyle(color: Colors.white),
+                  ),
                 ),
               ),
-            ),
+            ],
           ],
         ),
       ),
