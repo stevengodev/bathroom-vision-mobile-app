@@ -118,13 +118,25 @@ class _WeeklySchedulePageState extends State<WeeklySchedulePage> {
                             });
                           },
                         ),
-                        Text(
-                          "${DateFormat('MMM d').format(weekDays.first)} - "
-                          "${DateFormat('d').format(weekDays.last)}",
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
+                        Column(
+                          children: [
+                            Text(
+                              DateFormat('yyyy').format(weekDays.first),
+                              style: const TextStyle(
+                                fontSize: 14,
+                                color: Colors.grey,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            Text(
+                              "${DateFormat('MMM d').format(weekDays.first)} - "
+                              "${DateFormat('d').format(weekDays.last)}",
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
                         ),
                         IconButton(
                           icon: const Icon(Icons.chevron_right),
